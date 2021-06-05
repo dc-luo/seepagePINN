@@ -47,8 +47,8 @@ print("Random: ", args.random)
 L = 1.0 
 K = 0.2
 h2 = 0
-n_max = 15
-n_train = 15
+n_max = 10
+n_train = 10
 n_points = 30
 
 noise_ratio = 0.05
@@ -94,12 +94,12 @@ X_test, u_test = make_training_set(test_list, refined_data)
 X_colloc = None
 
 ### Neural network ### 
-alphas = [0.0, 1e-6, 1e-4, 1e-2, 1, 10] 
+alphas = [0.0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100] 
 n_alpha = len(alphas)
 
 # Define models
-N_train = 10000
-layers = [2, 20, 20, 20, 20, 1]
+N_train = 20000
+layers = [2, 20, 20, 20, 20, 20, 1]
 # layers = [2, 20, 20, 20, 20, 20, 20, 20, 1]
 
 # Train model and save solutions/data to hdf5 format
@@ -127,13 +127,21 @@ for i, alpha in enumerate(alphas):
     
     model.train(N_train)
     u_pred, f_pred = model.predict(X_test) 
+    u_train, f_train = model.predict(X_train)
 
     # Saving model predictions
     groupname = "alpha_%s" %(i) 
     grp = out_file.create_group(groupname)
     grp.create_dataset('alpha', data=alpha)
+
+    # For trends
     grp.create_dataset('u_pred', data=u_pred) 
     grp.create_dataset('f_pred', data=f_pred) 
+    
+    # For training data
+    grp.create_dataset('u_train', data=u_train) 
+    grp.create_dataset('f_train', data=f_train) 
+
 
 out_file.close()
 

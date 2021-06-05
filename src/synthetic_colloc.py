@@ -117,6 +117,8 @@ layers = [2, 20, 20, 20, 20, 20, 1]
 h_max_train = np.max(u_train[:,0])
 alpha = 1 * h_max_train**2
 q_colloc = np.linspace(q_max, 2*q_max, 30)
+
+
 ######################################################################
 # 1. Train model using no collocation points
 n_colloc = 0
