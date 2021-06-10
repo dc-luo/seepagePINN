@@ -1,3 +1,7 @@
+# Synthetic data tests
+# Inverting for hydraulic conductivity parameter from data 
+# And using resulting PINN for prediction 
+
 import sys 
 import tensorflow as tf
 import matplotlib.pyplot as plt 
