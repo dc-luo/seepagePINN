@@ -15,7 +15,6 @@ import os
 import h5py
 import argparse
 
-# from pinn_models import DiNucciNormalizedScaledPINNFlowFitK, DiNucciNormalizedScaledPINNFitAll
 from pinn_models import DupuitNormalizedScaledPINNFitK, DiNucciNormalizedScaledPINNFitK, DiNucciNormalizedScaledPINNFitAll
 from utils import *
 
@@ -34,6 +33,8 @@ parser = argparse.ArgumentParser(description='Inputs for training')
 parser.add_argument('-n', '--N_epoch', type=int, default=20000, help="Number of training epochs")
 parser.add_argument('-d', '--data_model', type=str, default="dinucci", choices=["dinucci", "dupuit"], help="PDE choice for interpreting data: dinucci or dupuit")
 parser.add_argument("-r", "--random", help="Do not set constant seed", action="store_true", default=False)
+parser.add_argument("-p", "--positive", help="Set positive bounds on PDE coefficients", action="store_true", default=False)
+parser.add_argument('-K', '--K', type=float, default=1e-2, help="True hydraulic conductivity")
 args = parser.parse_args()
 
 ######################################################################
@@ -43,22 +44,27 @@ if not args.random:
     tf.set_random_seed(1234) 
 
 data_model = args.data_model
+params_positive = args.positive
+
 print("Data generated using ", data_model)
+print("Positive transformation: ", params_positive)
 print("Random: ", args.random)
+print("K: ", args.K)
 
 ### Training data ###
 L = 1.0 
-K = 0.02 
+K = args.K
 h2 = 0
-n_max = 8
-n_train = 8
+n_max = 1
+n_train = 1
 n_points = 30 
+n_points_refined = 100
 
 noise_ratio = 0.01
 
 # Define training flow rates 
-q_min = 1e-4
-q_max = 1e-3
+q_min = 1e-3
+q_max = 1e-2
 q_list = np.linspace(q_min, q_max, n_max)
 scale_q = q_min
 
@@ -69,6 +75,7 @@ if data_model == 'dinucci':
     
     # Make synthetic dinucci data
     training_data = make_synthetic_all_dinucci(h1_list, h2, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd)
+    refined_data = make_synthetic_all_dinucci(h1_list, h2, L, K, n_points_refined, scale_q=scale_q, noise_sd=0)
 
 
 if data_model == 'dupuit':
@@ -78,6 +85,7 @@ if data_model == 'dupuit':
 
     # Make synthetic dupuit data 
     training_data = make_synthetic_all_dupuit(q_list, h2, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd)
+    refined_data = make_synthetic_all_dupuit(q_list, h2, L, K, n_points_refined, scale_q=scale_q, noise_sd=0)
 
 
 if n_train < n_max:
@@ -93,7 +101,7 @@ X, u, L, W, k = training_data[1]
 
 # Test data - all as test data 
 test_list = [i+1 for i in range(n_max)]
-X_test, u_test = make_training_set(test_list, training_data)
+X_test, u_test = make_training_set(test_list, refined_data)
 
 X_colloc = None
 
@@ -102,24 +110,29 @@ h_max_train = np.max(u_train[:,0])
 alpha = h_max_train**2
 
 # Define models
-N_epoch = 20000
+N_epoch = args.N_epoch
 layers = [2, 20, 20, 20, 20, 1]
 
 # Dupuit model
-model_dupuit = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
+model_dupuit = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, L, scale_q=scale_q, 
         X_colloc=X_colloc, alpha=alpha, optimizer_type="both")
 model_dupuit.train(N_epoch)
 
 # Dinucci model 
-model_dinucci = DiNucciNormalizedScaledPINNFitAll(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
-        X_colloc=X_colloc, alpha=alpha, optimizer_type="both")
+model_dinucci = DiNucciNormalizedScaledPINNFitAll(X_train, u_train, k, layers, 0, L, scale_q=scale_q, 
+        X_colloc=X_colloc, alpha=alpha, params_positive=params_positive, optimizer_type="both")
 model_dinucci.train(N_epoch)
 
 ######################################################################
 # Post processing and save output as hdf5
 
 save_path = "paper/synthetic/learn_pde/"
-out_file = h5py.File(save_path + "data_" + data_model + ".h5", 'w')
+save_name = save_path + "data_" + data_model
+save_name += "K%e" %(K)
+if params_positive:
+    save_name += "_positive"
+
+out_file = h5py.File(save_name + ".h5", "w")
 out_file.create_dataset('q', data=q_list)
 out_file.create_dataset('N_epoch', data=N_epoch)
 out_file.create_dataset('training_list', data=training_list)
@@ -128,9 +141,14 @@ out_file.create_dataset('u_data', data=u_train)
 out_file.create_dataset('X_test', data=X_test)
 out_file.create_dataset('u_test', data=u_test)
 out_file.create_dataset('K_truth', data=K)
+out_file.create_dataset('L', data=L)
 out_file.create_dataset('noise_ratio', data=noise_ratio)
 
+
+# Dinucci predictions and saving 
 u_pred, f_pred = model_dinucci.predict(X_test) 
+f1_pred, f2_pred, f3_pred = model_dinucci.predict_terms(X_test)
+
 K_dinucci = np.exp(model_dinucci.sess.run(model_dinucci.lambda_1)[0])
 if model_dinucci.params_positive:
     c2 = np.exp(model_dinucci.sess.run(model_dinucci.lambda_2)[0])
@@ -139,7 +157,7 @@ else:
     c2 = model_dinucci.sess.run(model_dinucci.lambda_2)[0]
     c3 = model_dinucci.sess.run(model_dinucci.lambda_3)[0]
 
-# Saving model predictions
+# Saving 
 groupname = "dinucci"
 grp = out_file.create_group(groupname)
 grp.create_dataset('alpha', data=alpha)
@@ -148,7 +166,11 @@ grp.create_dataset('C2', data=c2)
 grp.create_dataset('C3', data=c3)
 grp.create_dataset('u_pred', data=u_pred) 
 grp.create_dataset('f_pred', data=f_pred) 
+grp.create_dataset('f1_pred', data=f1_pred) 
+grp.create_dataset('f2_pred', data=f2_pred) 
+grp.create_dataset('f3_pred', data=f3_pred) 
 
+# Dupuit predictions and saving 
 u_pred, f_pred = model_dupuit.predict(X_test) 
 K_dupuit = np.exp(model_dupuit.sess.run(model_dupuit.lambda_1)[0])
 
@@ -165,6 +187,7 @@ out_file.close()
 print("#"*20)
 print("Summarizing run results")
 print("Data generated using ", data_model)
+print("Positive transformation: ", params_positive)
 print("Random: ", args.random)
 print("Dinucci: [K, C2, C3] = ", [K_dinucci, c2, c3])
 print("Dupuit: K = ", K_dupuit)
