@@ -37,7 +37,6 @@ u_test = np.array(out_file.get('u_test'))
 K_truth = out_file.get('K_truth')[()]
 
 if args.plot_prediction:
-
     for iq, q in enumerate(qs):
         plt.figure()
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_test, iq, nq)[:,0], 'ok', label="PDE")
@@ -48,16 +47,19 @@ if args.plot_prediction:
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', label="a = %g" %(alpha))
-    
+        K = out_file.get(groupname + "/K")[()]
+        print(groupname, alpha, K)
+
         # With collocation points
         groupname = "alpha_small"
         alpha = out_file.get(groupname + "/alpha")[()]
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', label="a = %g" %(alpha))
-    
         plt.title("q = %g" %(q))
         plt.legend()
+        K = out_file.get(groupname + "/K")[()]
+        print(groupname, alpha, K)
     plt.show()
 
 if args.plot_residual:

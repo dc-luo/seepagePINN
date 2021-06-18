@@ -1,6 +1,5 @@
 # Synthetic data tests
-# Inverting for hydraulic conductivity parameter from data 
-# And using resulting PINN for prediction 
+# Fitting PDE coefficients assuming freedom in all terms
 
 import sys 
 import tensorflow as tf
@@ -31,8 +30,8 @@ tf.set_random_seed(1234)
 
 ######################################################################
 # Parsing in PDE model as input 
-parser = argparse.ArgumentParser(description='Select PDE model') 
-parser.add_argument('-m', '--flow_model', type=str, default="dinucci", choices=["dinucci", "dupuit"], help="PDE choice for generating data: dinucci or dupuit")
+parser = argparse.ArgumentParser(description='Inputs for training') 
+parser.add_argument('-n', '--N_epoch', type=int, default=20000, help="Number of training epochs")
 parser.add_argument('-d', '--data_model', type=str, default="dinucci", choices=["dinucci", "dupuit"], help="PDE choice for interpreting data: dinucci or dupuit")
 parser.add_argument("-r", "--random", help="Do not set constant seed", action="store_true", default=False)
 args = parser.parse_args()
@@ -43,11 +42,8 @@ if not args.random:
     np.random.seed(1234)
     tf.set_random_seed(1234) 
 
-flow_model = args.flow_model
 data_model = args.data_model
-
 print("Data generated using ", data_model)
-print("NN interpret using ", flow_model)
 print("Random: ", args.random)
 
 ### Training data ###
@@ -103,40 +99,29 @@ X_colloc = None
 
 ######################################################################
 h_max_train = np.max(u_train[:,0])
-alpha_large = 1 * h_max_train**2
-alpha_small = 0.1 * h_max_train**2
+alpha = h_max_train**2
 
 # Define models
-N_train = 20000
+N_epoch = 20000
 layers = [2, 20, 20, 20, 20, 1]
 
-if flow_model == "dupuit":
-    # dinucci flow model fitting K
-    model = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
-            X_colloc=X_colloc, alpha=alpha_large, optimizer_type="both")
-    model.train(N_train)
-    
-    model_small = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
-            X_colloc=X_colloc, alpha=alpha_small, optimizer_type="both")
-    model_small.train(N_train)
+# Dupuit model
+model_dupuit = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
+        X_colloc=X_colloc, alpha=alpha, optimizer_type="both")
+model_dupuit.train(N_epoch)
 
-
-if flow_model == "dinucci":
-    # dinucci flow model fitting K
-    model = DiNucciNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
-            X_colloc=X_colloc, alpha=alpha_large, optimizer_type="both")
-    model.train(N_train)
-    
-    model_small = DiNucciNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
-            X_colloc=X_colloc, alpha=alpha_small, optimizer_type="both")
-    model_small.train(N_train)
+# Dinucci model 
+model_dinucci = DiNucciNormalizedScaledPINNFitAll(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
+        X_colloc=X_colloc, alpha=alpha, optimizer_type="both")
+model_dinucci.train(N_epoch)
 
 ######################################################################
 # Post processing and save output as hdf5
 
-save_path = "paper/synthetic/invert/"
-out_file = h5py.File(save_path + "data_" + data_model + "_" + flow_model + ".h5", 'w')
+save_path = "paper/synthetic/learn_pde/"
+out_file = h5py.File(save_path + "data_" + data_model + ".h5", 'w')
 out_file.create_dataset('q', data=q_list)
+out_file.create_dataset('N_epoch', data=N_epoch)
 out_file.create_dataset('training_list', data=training_list)
 out_file.create_dataset('X_data', data=X_train)
 out_file.create_dataset('u_data', data=u_train)
@@ -145,35 +130,50 @@ out_file.create_dataset('u_test', data=u_test)
 out_file.create_dataset('K_truth', data=K)
 out_file.create_dataset('noise_ratio', data=noise_ratio)
 
-u_pred, f_pred = model.predict(X_test) 
-k_large = np.exp(model.sess.run(model.lambda_1)[0])
+u_pred, f_pred = model_dinucci.predict(X_test) 
+K_dinucci = np.exp(model_dinucci.sess.run(model_dinucci.lambda_1)[0])
+if model_dinucci.params_positive:
+    c2 = np.exp(model_dinucci.sess.run(model_dinucci.lambda_2)[0])
+    c3 = np.exp(model_dinucci.sess.run(model_dinucci.lambda_3)[0])
+else:
+    c2 = model_dinucci.sess.run(model_dinucci.lambda_2)[0]
+    c3 = model_dinucci.sess.run(model_dinucci.lambda_3)[0]
 
 # Saving model predictions
-groupname = "alpha_large"
+groupname = "dinucci"
 grp = out_file.create_group(groupname)
-grp.create_dataset('alpha', data=alpha_large)
-grp.create_dataset('K', data=k_large)
+grp.create_dataset('alpha', data=alpha)
+grp.create_dataset('K', data=K_dinucci)
+grp.create_dataset('C2', data=c2)
+grp.create_dataset('C3', data=c3)
 grp.create_dataset('u_pred', data=u_pred) 
 grp.create_dataset('f_pred', data=f_pred) 
 
-u_pred, f_pred = model_small.predict(X_test) 
-k_small = np.exp(model_small.sess.run(model_small.lambda_1)[0])
+u_pred, f_pred = model_dupuit.predict(X_test) 
+K_dupuit = np.exp(model_dupuit.sess.run(model_dupuit.lambda_1)[0])
 
 # Saving model predictions
-groupname = "alpha_small"
+groupname = "dupuit"
 grp = out_file.create_group(groupname)
-grp.create_dataset('alpha', data=alpha_small)
-grp.create_dataset('K', data=k_small)
+grp.create_dataset('alpha', data=alpha)
+grp.create_dataset('K', data=K_dupuit)
 grp.create_dataset('u_pred', data=u_pred) 
 grp.create_dataset('f_pred', data=f_pred) 
 
 out_file.close()
 
+print("#"*20)
+print("Summarizing run results")
+print("Data generated using ", data_model)
+print("Random: ", args.random)
+print("Dinucci: [K, C2, C3] = ", [K_dinucci, c2, c3])
+print("Dupuit: K = ", K_dupuit)
+
 plot_scatter = True
 
 if plot_scatter:
     # plot the 3d scatter for data     
-    u_pred_test, _ = model.predict(X_test)
+    u_pred_test, _ = model_dinucci.predict(X_test)
     plt.figure(figsize=FIGSIZE)
     ax = plt.axes(projection='3d')
     ax.view_init(22, 45)
@@ -181,9 +181,9 @@ if plot_scatter:
     ax.scatter3D(X_test[:,0], X_test[:,1], u_pred_test[:,0], color='b')
     plt.xlabel("x")
     plt.ylabel("q")
-    plt.title("large")
+    plt.title("DiNucci")
 
-    u_pred_test, _ = model_small.predict(X_test)
+    u_pred_test, _ = model_dupuit.predict(X_test)
     plt.figure(figsize=FIGSIZE)
     ax = plt.axes(projection='3d')
     ax.view_init(22, 45)
@@ -191,7 +191,7 @@ if plot_scatter:
     ax.scatter3D(X_test[:,0], X_test[:,1], u_pred_test[:,0], color='b')
     plt.xlabel("x")
     plt.ylabel("q")
-    plt.title("small")
+    plt.title("Dupuit")
 
     plt.show()
 
