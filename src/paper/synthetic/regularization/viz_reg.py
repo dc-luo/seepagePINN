@@ -4,12 +4,20 @@ import argparse
 import matplotlib.pyplot as plt 
 
 parser = argparse.ArgumentParser(description='Select PDE model') 
+parser.add_argument('-n', '--name', type=str, default="", help="Data file name, optional input")
 parser.add_argument('-m', '--model', type=str, default="dinucci", choices=["dinucci", "dupuit"], help='PDE choice: dinucci or dupuit')
 parser.add_argument("-u", "--plot_prediction", help="plot model vs prediction as trends", action="store_true", default=False)
 parser.add_argument("-c", "--plot_comparison", help="plot model vs prediction as scatter", action="store_true", default=False)
 parser.add_argument("-l", "--plot_lcurve", help="plot L-curve analysis", action="store_true", default=False)
 args = parser.parse_args()
 
+if args.name:
+    filename = args.name + ".h5"
+    print("Plotting ", args.name)
+else:
+    flow_model = args.model
+    filename = "data_" + flow_model + ".h5"
+    print("Plotting ", flow_model, " results")
 
 def slice_to_flow(arr, i, n):
     """ slice to the ith flow value given a total of n possible flow values""" 
@@ -18,12 +26,6 @@ def slice_to_flow(arr, i, n):
     i_lower = i * incr
     i_upper = (i+1) * incr
     return arr[i_lower:i_upper, :]
-
-flow_model = args.model
-
-print("Plotting ", flow_model, " results")
-
-filename = "data_" + flow_model + ".h5"
 
 output_training = h5py.File(filename, "r")
 qs = np.array(output_training.get('q'))
