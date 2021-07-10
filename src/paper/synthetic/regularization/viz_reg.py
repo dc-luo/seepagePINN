@@ -27,6 +27,8 @@ def slice_to_flow(arr, i, n):
     i_upper = (i+1) * incr
     return arr[i_lower:i_upper, :]
 
+L = 1.0
+
 output_training = h5py.File(filename, "r")
 qs = np.array(output_training.get('q'))
 nq = qs.shape[0]
@@ -41,6 +43,7 @@ FIGSIZE = (12, 8)
 FIGDPI = 100
 plt.rcParams["font.family"] = "Serif"
 plt.rcParams["font.size"] = 16
+plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 grad_color = plt.cm.get_cmap('turbo', 12)
 base_color = 0.0
@@ -50,20 +53,30 @@ color_incr = (top_color - base_color)/n_alpha
 if args.plot_prediction:
     for iq, q in enumerate(qs):
         plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
-        plt.plot(slice_to_flow(X_data, iq, nq)[:,0], slice_to_flow(u_data, iq, nq)[:,0], 'ok', label="Data")
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_test, iq, nq)[:,0], '--k', label="PDE")
+        plt.plot(L - slice_to_flow(X_data, iq, nq)[:,0], slice_to_flow(u_data, iq, nq)[:,0], 'ok', label="Data")
+        plt.plot(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_test, iq, nq)[:,0], '--k', label="PDE")
     
         for i_alpha in range(n_alpha):
             groupname = "alpha_%s" %(i_alpha)
             alpha = output_training.get(groupname + "/alpha")[()]
             u_pred = np.array(output_training.get(groupname + "/u_pred"))
             f_pred = np.array(output_training.get(groupname + "/f_pred"))
+
+            if alpha >= np.finfo(float).eps: 
+                log_alpha = np.log10(alpha)
     
-            plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', color=grad_color(base_color + i_alpha * color_incr), label="a = %g" %(alpha))
+                plt.plot(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', 
+                        color=grad_color(base_color + i_alpha * color_incr), label=r"$\alpha = 10^{%g}$" %(log_alpha))
+            else:
+                plt.plot(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', 
+                        color=grad_color(base_color + i_alpha * color_incr), label=r"$\alpha = 0$")
     
-        plt.title("q = %g" %(q))
+        plt.xlabel(r"$x$")
+        plt.ylabel(r"$h$")
+        plt.title(r"$q = %g$" %(q))
         plt.legend()
         plt.tight_layout()
+        plt.savefig("figures/%s_prediction_%d.pdf" %(args.model, iq))
     
     plt.show()
 
@@ -75,9 +88,18 @@ if args.plot_comparison:
         u_pred = np.array(output_training.get(groupname + "/u_pred"))
         f_pred = np.array(output_training.get(groupname + "/f_pred"))
     
-        plt.plot(u_test[:,0], u_pred[:,0], 'o') 
-        plt.title("alpha = %g" %(alpha))
+        plt.plot(u_test[:,0], u_pred[:,0], 'ob') 
+        if alpha > np.finfo(float).eps:
+            log_alpha = np.log10(alpha)
+            plt.title(r"$\alpha = 10^{%g}$" %(log_alpha))
+        else:
+            plt.title(r"$\alpha = 0$")
+
+        plt.xlabel("Test data")
+        plt.ylabel("Model prediction")
+
         plt.tight_layout()
+        plt.savefig("figures/%s_comparison_%d.pdf" %(args.model, i_alpha))
     
     plt.show()
     
@@ -107,4 +129,5 @@ if args.plot_lcurve:
     plt.xlabel(r'Data misfit $\|h_{NN} - h_{data}\|$')
     plt.ylabel(r'PDE Misfit $\|f_{NN}\|$')
     plt.tight_layout()
+    plt.savefig("figures/%s_lcurve.pdf" %(args.model))
     plt.show()

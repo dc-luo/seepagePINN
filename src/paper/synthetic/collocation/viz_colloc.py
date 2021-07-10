@@ -18,6 +18,14 @@ def slice_to_flow(arr, i, n):
     i_upper = (i+1) * incr
     return arr[i_lower:i_upper, :]
 
+L = 1
+
+FIGSIZE = (12, 8)
+FIGDPI = 100
+plt.rcParams["font.family"] = "Serif"
+plt.rcParams["font.size"] = 16
+plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+
 
 flow_model = args.model
 filename = "data_" + flow_model + ".h5"
@@ -34,47 +42,56 @@ u_test = np.array(out_file.get('u_test'))
 if args.plot_prediction:
 
     for iq, q in enumerate(qs):
-        plt.figure()
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_test, iq, nq)[:,0], '--k', label="PDE")
+        plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
+        plt.plot(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_test, iq, nq)[:,0], '--k', label="PDE")
         
         # No collocation points
         groupname = "no_colloc"
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', label="No colloc")
+        plt.plot(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-b', label="No collocation")
     
         # With collocation points
         groupname = "colloc"
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', label="Colloc")
+        plt.plot(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-r', label="With collocation")
     
-        plt.title("q = %g" %(q))
+        plt.title(r"$q = %g$" %(q))
+        plt.ylim([0, None])
+        plt.xlabel(r"$x$")
+        plt.ylabel(r"$h$")
         plt.legend()
+        plt.tight_layout()
+        plt.savefig("figures/%s_prediction_%d.pdf" %(args.model, iq))
     plt.show()
 
 if args.plot_residual:
     for iq, q in enumerate(qs):
-        plt.figure()
+        plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
         # No collocation points
         groupname = "no_colloc"
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(f_pred, iq, nq)[:,0], '-', label="No colloc")
+        plt.plot(slice_to_flow(L - X_test, iq, nq)[:,0], slice_to_flow(f_pred, iq, nq)[:,0], '-b', label="No colloc")
     
         # With collocation points
         groupname = "colloc"
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(f_pred, iq, nq)[:,0], '-', label="Colloc")
+        plt.plot(slice_to_flow(L - X_test, iq, nq)[:,0], slice_to_flow(f_pred, iq, nq)[:,0], '-r', label="Colloc")
     
-        plt.title("q = %g" %(q))
+        plt.title(r"$q = %g$" %(q))
+        plt.xlabel(r"$x$")
+        plt.ylabel(r"PDE residual $f$")
         plt.legend()
+        plt.tight_layout()
+        plt.savefig("figures/%s_residual_%d.pdf" %(args.model, iq))
     
     plt.show()
 
 if args.plot_comparison:
-    plt.figure()
+    plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
     q_train_min = 0.1
     q_train_max = 0.2
 
@@ -89,12 +106,14 @@ if args.plot_comparison:
             plt.plot(slice_to_flow(u_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], 'ob')
 
     plt.xlabel("Test data")
-    plt.ylabel("Prediction")
+    plt.ylabel("Model prediction")
     plt.title("No collocation")
     plt.xlim([0, None])
     plt.ylim([0, None])
+    plt.tight_layout()
+    plt.savefig("figures/%s_comparison_nocolloc.pdf" %(args.model))
 
-    plt.figure()
+    plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
 
     for iq, q in enumerate(qs):
         # No collocation points
@@ -107,9 +126,10 @@ if args.plot_comparison:
             plt.plot(slice_to_flow(u_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], 'ob')
 
     plt.xlabel("Test data")
-    plt.ylabel("Prediction")
+    plt.ylabel("Model prediction")
     plt.title("With collocation")
     plt.xlim([0, None])
     plt.ylim([0, None])
-
+    plt.tight_layout()
+    plt.savefig("figures/%s_comparison_colloc.pdf" %(args.model))
     plt.show()

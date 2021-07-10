@@ -11,6 +11,8 @@ parser.add_argument("-c", "--plot_comparison", help="plot model vs prediction as
 parser.add_argument("-l", "--plot_lcurve", help="plot L-curve analysis", action="store_true", default=False)
 args = parser.parse_args()
 
+def flip_x(x, L):
+    return L - x
 
 def slice_to_flow(arr, i, n):
     """ slice to the ith flow value given a total of n possible flow values""" 
@@ -37,10 +39,13 @@ u_data = np.array(output_training.get('u_data'))
 X_test = np.array(output_training.get('X_test'))
 u_test = np.array(output_training.get('u_test'))
 
+L = 1
+
 FIGSIZE = (12, 8)
 FIGDPI = 100
 plt.rcParams["font.family"] = "Serif"
 plt.rcParams["font.size"] = 16
+plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 grad_color = plt.cm.get_cmap('turbo', 12)
 base_color = 0.0
@@ -50,19 +55,23 @@ color_incr = (top_color - base_color)/n_runs
 if args.plot_prediction:
     for iq, q in enumerate(qs):
         plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
-        plt.plot(slice_to_flow(X_data, iq, nq)[:,0], slice_to_flow(u_data, iq, nq)[:,0], 'ok', label="Data")
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_test, iq, nq)[:,0], '--k', label="PDE")
+        plt.plot(flip_x(slice_to_flow(X_data, iq, nq)[:,0], L), slice_to_flow(u_data, iq, nq)[:,0], 'ok', label="Data")
+        plt.plot(flip_x(slice_to_flow(X_test, iq, nq)[:,0], L), slice_to_flow(u_test, iq, nq)[:,0], '--k', label="PDE")
     
         for i_colloc in range(n_runs):
             groupname = "n_colloc_%d" %(i_colloc)
             n_colloc = output_training.get(groupname + "/n_colloc")[()]
             u_pred = np.array(output_training.get(groupname + "/u_pred"))
     
-            plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', color=grad_color(base_color + i_colloc * color_incr), label="n_colloc = %g" %(n_colloc))
+            plt.plot(flip_x(slice_to_flow(X_test, iq, nq)[:,0], L), slice_to_flow(u_pred, iq, nq)[:,0], '-', 
+                    color=grad_color(base_color + i_colloc * color_incr), label=r"$N_c = %g$" %(n_colloc))
     
-        plt.title("q = %g" %(q))
+        plt.title(r"$q = %g$" %(q))
+        plt.xlabel("$x$")
+        plt.ylabel("$h$")
         plt.legend()
         plt.tight_layout()
+        plt.savefig("figures/%s_prediction_%d.pdf" %(args.model, iq))
     
     plt.show()
 
@@ -76,11 +85,15 @@ if args.plot_residual:
             n_colloc = output_training.get(groupname + "/n_colloc")[()]
             f_pred = np.abs(np.array(output_training.get(groupname + "/f_pred")))
     
-            plt.semilogy(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(f_pred, iq, nq)[:,0], '-', color=grad_color(base_color + i_colloc * color_incr), label="n_colloc = %g" %(n_colloc))
+            plt.semilogy(flip_x(slice_to_flow(X_test, iq, nq)[:,0], L), slice_to_flow(f_pred, iq, nq)[:,0], '-', 
+                    color=grad_color(base_color + i_colloc * color_incr), label=r"$N_c = %g$" %(n_colloc))
     
-        plt.title("q = %g" %(q))
+        plt.xlabel("$x$")
+        plt.ylabel("PDE residual $f$")
+        plt.title(r"$q = %g$" %(q))
         plt.legend()
         plt.tight_layout()
+        plt.savefig("figures/%s_residual_%d.pdf" %(args.model, iq))
     
     plt.show()
 
@@ -93,9 +106,10 @@ if args.plot_comparison:
         u_pred = np.array(output_training.get(groupname + "/u_pred"))
         f_pred = np.array(output_training.get(groupname + "/f_pred"))
     
-        plt.plot(u_test[:,0], u_pred[:,0], 'o') 
-        plt.title("n_colloc = %g" %(n_colloc))
+        plt.plot(u_test[:,0], u_pred[:,0], 'ob') 
+        plt.title(r"$N_c = %g$" %(n_colloc))
         plt.tight_layout()
+        plt.savefig("figures/%s_comparison_%d.pdf" %(args.model, i_colloc))
     
     plt.show()
     
@@ -122,4 +136,5 @@ if args.plot_lcurve:
     plt.xlabel(r'Data misfit $\|h_{NN} - h_{data}\|$')
     plt.ylabel(r'PDE Misfit $\|f_{NN}\|$')
     plt.tight_layout()
+    plt.savefig("%s_lcurve.pdf" %(args.model))
     plt.show()
