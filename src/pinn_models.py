@@ -254,6 +254,11 @@ class DiNucciNormalizedScaledPINNFitK(PINN2D):
 
         super().__init__(X, u, layers, lb, ub, X_colloc=X_colloc, alpha=alpha, alpha_colloc=alpha_colloc, optimizer_type=optimizer_type)
 
+        # For predicting the individual terms
+        self.f1_pred = self.net_f1(self.x_tf, self.q_tf)
+        self.f2_pred = self.net_f2(self.x_tf, self.q_tf)
+        self.f3_pred = self.net_f3(self.x_tf, self.q_tf)
+
     def net_f(self, x, q):
         kappa = tf.exp(self.lambda_1)
         u = self.net_u(x,q)
@@ -322,6 +327,45 @@ class DiNucciNormalizedScaledPINNFitK(PINN2D):
         f_star = self.sess.run(self.f_pred, tf_dict)
         
         return u_star, f_star
+
+    def net_f1(self, x, q):
+
+        kappa = tf.exp(self.lambda_1)
+        u = self.net_u(x,q)
+        u_x = tf.gradients(u, x)[0]
+        f = 1/(q*self.scale_q)*u*u_x 
+
+        return f
+
+
+    def net_f2(self, x, q):
+        
+        u = self.net_u(x,q)
+        u_x = tf.gradients(u, x)[0]
+        u_xx = tf.gradients(u_x, x)[0]
+        f = 1/3*u*u_xx 
+
+        return f
+
+
+    def net_f3(self, x, q):
+
+        u = self.net_u(x,q)
+        u_x = tf.gradients(u, x)[0]
+        u_xx = tf.gradients(u_x, x)[0]
+        f = 1/3*u_x*u_x 
+
+        return f
+
+    def predict_terms(self, X_star):
+        
+        tf_dict = {self.x_tf: X_star[:,0:1], self.q_tf: X_star[:,1:2]}
+        
+        f1_star = self.sess.run(self.f1_pred, tf_dict)
+        f2_star = self.sess.run(self.f2_pred, tf_dict)
+        f3_star = self.sess.run(self.f3_pred, tf_dict)
+        
+        return f1_star, f2_star, f3_star
         
 class DiNucciNormalizedScaledPINNFitAll(PINN2D):
     """ 

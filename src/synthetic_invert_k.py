@@ -110,6 +110,7 @@ alpha_small = 0.1 * h_max_train**2
 N_train = 20000
 layers = [2, 20, 20, 20, 20, 1]
 
+
 if flow_model == "dupuit":
     # dinucci flow model fitting K
     model = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 

@@ -43,11 +43,12 @@ L = 1.0
 X_data = L - X_data
 X_test = L - X_test
 
-FIGSIZE = (12, 8)
+FIGSIZE = (8, 6)
 FIGDPI = 100
 plt.rcParams["font.family"] = "Serif"
 plt.rcParams["font.size"] = 16
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+plt.rcParams['lines.linewidth'] = 3
 
 n_color = 4
 grad_color = plt.cm.get_cmap('turbo', 12)
@@ -141,8 +142,8 @@ if args.plot_terms:
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(K_truth*f1_pred, iq, nq)[:,0], '-', color=grad_color(1*color_incr),  label=r"$-\frac{K}{q}hh_x$")
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(C2 * f2_pred, iq, nq)[:,0], '-', color=grad_color(2*color_incr), label=r"$-\frac{1}{3}h h_{xx}$")
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(C3 * f3_pred, iq, nq)[:,0], '-', color=grad_color(3*color_incr), label=r"$-\frac{1}{3} h_x^2$")
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(K_truth*f1_pred + C2*f2_pred + C3*f3_pred, iq, nq)[:,0], '-', color=grad_color(4*color_incr), label="Sum")
-        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(X_test, iq, nq)[:,0]*0 + 1, '--k')
+        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(K_truth*f1_pred + C2*f2_pred + C3*f3_pred, iq, nq)[:,0], '--', color=grad_color(4*color_incr), label="Sum")
+        plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(X_test, iq, nq)[:,0]*0 + 1, '--k', linewidth=2)
     
         pi = 2*q/(K_truth * L)
         plt.xlabel(r"$x$")

@@ -1,5 +1,24 @@
 import scipy.io 
+import os
+import matplotlib.pyplot as plt
 import numpy as np 
+
+
+def plot_scatter_all(dataset, scale_q=1.0):
+    """ 
+    Plots an entire dataset as scatter plot 
+    where X = [x, q]
+    """    
+    
+    ax = plt.axes(projection='3d')
+    ax.view_init(22, 45)
+    for key in dataset.keys():
+        X = dataset[key][0]
+        u = dataset[key][1]
+        ax.scatter3D(X[:,0], X[:,1]*scale_q, u[:,0], color='r')
+    plt.xlabel("x")
+    plt.ylabel("q")
+    plt.title("Data")
 
 
 def make_collocation(q_list, n_colloc, x0, x1, scale_q=1.0):
@@ -20,9 +39,9 @@ def make_collocation(q_list, n_colloc, x0, x1, scale_q=1.0):
         X_colloc = np.stack((x_colloc, q_colloc)).T 
     return X_colloc
 
-def load_data(name, n, non_dim=True, scale_q=1.0):
+def load_data(name, n, data_dir="data/steady", non_dim=True, scale_q=1.0):
     """ loads dataset n"""
-    data = scipy.io.loadmat("data/steady/%s_exp%d.mat" %(name, n)) 
+    data = scipy.io.loadmat(data_dir + "/%s_exp%d.mat" %(name, n)) 
     Q = data['Q'][0][0]
     K_truth = data['K'][0][0]
     
@@ -42,6 +61,62 @@ def load_data(name, n, non_dim=True, scale_q=1.0):
     X_data = np.stack((x_data, q_data)).T
 
     return X_data, u_data, L, W, K_truth 
+
+
+def load_data_name(name, data_dir="data/steady", non_dim=False, subsample=200, scale_q=1.0):
+    """ load dataset given full name 
+
+    Notes: 
+    x_data is of shape (1,n)
+    u_data is of shape (n,1)
+    L is measured in mm 
+    Some entries of u_data are Nan. Remove these elements 
+    """
+    MM_TO_M = 1000
+
+    data = scipy.io.loadmat(data_dir + "/" + name)
+    Q = data['Q'][0][0]
+    K_truth = data['K'][0][0]
+    
+    x_data = data['xexp'][0,:]
+    u_data = data['hexp']
+
+    # Removing the Nan entries 
+    x_data = x_data[~np.isnan(u_data[:,0])]
+    u_data = u_data[~np.isnan(u_data)]
+
+    if subsample < x_data.shape[0]:
+        inds = np.sort(np.random.choice(x_data.shape[0], size=subsample, replace=False))
+        x_data = x_data[inds]
+        u_data = u_data[inds]
+
+    u_data = u_data.reshape((-1, 1))
+    L = data['L'][0][0]/MM_TO_M
+    W = data['W'][0][0]
+
+    q_data = -np.ones(x_data.shape) * Q/W  / scale_q
+
+    if non_dim:
+        x_data /= L
+        u_data /= L
+        q_data /= L*K_truth
+
+    X_data = np.stack((x_data, q_data)).T
+
+    return X_data, u_data, L, W, K_truth 
+
+def load_all_dir(data_dir="data/steady", non_dim=False, subsample=200, scale_q=1.0):
+    """ loads data for each mat file in a given directory """ 
+    all_files = os.listdir(data_dir) 
+    training_data = dict() 
+    count = 1 
+    for i_file in all_files:
+        if i_file.endswith(".mat"):
+            training_data[count] = load_data_name(i_file, data_dir, non_dim=non_dim, 
+                    subsample=subsample, scale_q=scale_q)
+            count += 1 
+
+    return training_data
 
 def load_all(name, n_max, non_dim=True, scale_q=1.0):
     """ load all training data into a dictionary 

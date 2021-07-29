@@ -46,21 +46,22 @@ K_truth = out_file.get('K_truth')[()]
 K_large = out_file.get('alpha_large/K')[()]
 K_small = out_file.get('alpha_small/K')[()]
 print("True K: ", K_truth)
-print("With large alpha: ", K_large)
-print("With small alpha: ", K_small)
+print("With large alpha: ", K_large, " Error: ", (K_large-K_truth)/K_truth)
+print("With small alpha: ", K_small, " Error: ", (K_small-K_truth)/K_truth)
 
 if args.plot_prediction:
     for iq, q in enumerate(qs):
-        plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
+        plt.figure(figsize=(8,6), dpi=FIGDPI)
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_test, iq, nq)[:,0], 'ok', label="PDE")
         
         # No collocation points
         groupname = "alpha_large"
         alpha = out_file.get(groupname + "/alpha")[()]
+        h_max = np.sqrt(alpha)
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-b', 
-                label=r"$\alpha = %g$" %(alpha))
+                label=r"$h_{max}^2$")
         K = out_file.get(groupname + "/K")[()]
         print(groupname, alpha, K)
 
@@ -70,7 +71,7 @@ if args.plot_prediction:
         u_pred = np.array(out_file.get(groupname + "/u_pred"))
         f_pred = np.array(out_file.get(groupname + "/f_pred"))
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '--r', 
-                label=r"$\alpha = %g$" %(alpha))
+                label=r"$h_{max}^2/10$")
         plt.title("$q = %g$" %(q))
         plt.legend()
         K = out_file.get(groupname + "/K")[()]
@@ -78,8 +79,9 @@ if args.plot_prediction:
 
         plt.xlabel(r"$x$")
         plt.ylabel(r"$h$")
+        plt.ylim([0, h_max*1.1])
         plt.tight_layout()
-        plt.savefig("figures/%s_prediction_%d.pdf" %(args.data_model, iq))
+        plt.savefig("figures/%s_invert_prediction_%d.pdf" %(args.data_model, iq))
 
     plt.show()
 
