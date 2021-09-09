@@ -29,7 +29,10 @@ class PhysicsNN:
         self.optimizer_type = optimizer_type
         
         self.alpha = alpha
+        self.alpha_colloc = alpha_colloc
+        
         self.alpha_const = tf.constant(self.alpha, dtype=tf.float32, shape=[1,1])
+        self.alpha_colloc_const = tf.constant(self.alpha_colloc, dtype=tf.float32, shape=[1,1])
         
         self.gamma = gamma
         self.gamma_const = tf.constant(self.gamma, dtype=tf.float32, shape=[1,1])
@@ -87,7 +90,7 @@ class PhysicsNN:
         if X_colloc is None:
         
             self.loss = tf.reduce_mean(tf.square(self.u_tf - self.u_pred)) \
-                          + tf.reduce_mean(tf.square(self.q_tf - self.q_pred)) \
+                          + tf.reduce_mean(tf.square(self.q_tf - self.q_pred))\
                           + self.alpha_const * tf.reduce_mean(tf.square(self.f1_pred)) \
                           + self.gamma_const * tf.reduce_mean(tf.square(self.f2_pred)) \
                           + self.beta_L * tf.reduce_mean(tf.square(self.q_left_boundary)) \
@@ -297,6 +300,21 @@ class DinucciPINN(PhysicsNN):
                         
         start_time = time.time()
         if self.optimizer_type == "adam":
+            for it in range(nIter):
+                self.sess.run(self.train_op_Adam, tf_dict)
+
+                # Print
+                if it % 10 == 0:
+                    elapsed = time.time() - start_time
+                    loss_value = self.sess.run(self.loss, tf_dict)
+                    lambda_1_value = self.sess.run(self.lambda_1)
+                    #lambda_2_value = self.sess.run(self.lambda_2)
+
+                    print('It: %d, Loss: %.3e, Lambda_1: %.3f, Time: %.2f' %
+                          (it, loss_value, np.exp(lambda_1_value), elapsed))
+                    start_time = time.time()
+                    
+        elif self.optimizer_type == "both":
             for it in range(nIter):
                 self.sess.run(self.train_op_Adam, tf_dict)
 

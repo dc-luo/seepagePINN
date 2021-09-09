@@ -27,8 +27,9 @@ class PhysicsInformedNN:
         
         # left and right Neumann conditions
         self.alpha = alpha
+        self.alpha_colloc = alpha_colloc
         self.alpha_const = tf.constant(self.alpha, dtype=tf.float32, shape=[1,1])
-        
+        self.alpha_colloc_const = tf.constant(self.alpha_colloc, dtype=tf.float32, shape=[1,1])
 #        self.b = b
 #        self.b_const = tf.constant(self.b, dtype=tf.float32, shape=[1,1])
 
@@ -193,7 +194,7 @@ class PhysicsInformedNN:
 ##############################################################################
 class DupuitPINN(PhysicsInformedNN):
 
-    def __init__(self, X, X_left_boundary, X_right_boundary, u, lambda_1, lambda_2, layers, lb, ub, X_colloc=None, b=0, alpha=1, alpha_colloc=1, betas = [0.,0.], optimizer_type="adam"):
+    def __init__(self, X, X_left_boundary, X_right_boundary, u, lambda_1, lambda_2, layers, lb, ub, X_colloc=None, b=0.1, alpha=1, alpha_colloc=1, betas = [0.,0.], optimizer_type="adam"):
 
         # initialise parameters
         self.lambda_1 = tf.Variable([np.log(lambda_1)], dtype=tf.float32) # k = e^{lambda_1}
@@ -230,9 +231,9 @@ class DupuitPINN(PhysicsInformedNN):
     def net_right_boundary(self, x, t):
         """ right boundary residual """
         u = self.net_u(x,t)
-        u_x = tf.gradients(u, x)[0]
+        #u_x = tf.gradients(u, x)[0]
 
-        f = u_x - self.b_const
+        f = u - self.b_const
         return f
 
     def callback(self, loss, lambda_1, lambda_2):
@@ -269,7 +270,21 @@ class DupuitPINN(PhysicsInformedNN):
                     print('It: %d, Loss: %.3e, Lambda_1: %.3f, Lambda_2: %.3f, Time: %.2f' %
                           (it, loss_value, np.exp(lambda_1_value), lambda_2_value, elapsed))
                     start_time = time.time()
+                    
+        elif self.optimizer_type == "both":
+            for it in range(nIter):
+                self.sess.run(self.train_op_Adam, tf_dict)
+                
+                if it % 10 == 0:
+                    elapsed = time.time() - start_time
+                    loss_value = self.sess.run(self.loss, tf_dict)
+                    lambda_1_value = self.sess.run(self.lambda_1)
+                    lambda_2_value = self.sess.run(self.lambda_2)
 
+                    print('It: %d, Loss: %.3e, Lambda_1: %.3f, Lambda_2: %.3f, Time: %.2f' %
+                          (it, loss_value, np.exp(lambda_1_value), lambda_2_value, elapsed))
+                    start_time = time.time()
+                
             self.optimizer.minimize(self.sess,
                                      feed_dict = tf_dict,
                                      fetches = [self.loss, self.lambda_1, self.lambda_2],
