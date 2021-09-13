@@ -46,20 +46,22 @@ K: hydraulic conductivity
 (by importing argparse in python code)
 - python experimental_invert.py --help
 
-usage: experimental_invert.py [-h] [-c CASE] [-n N_EPOCH]\
-<space><space><space> [-m {dinucci,dupuit}] [-r]
+<pre>
+usage: experimental_invert.py [-h] [-c CASE] [-n N_EPOCH]
+                                              [-m {dinucci,dupuit}] [-r]
 
 Select PDE model
 
-optional arguments:\
-  -h, --help $~~~~~$ show this help message and exit\
-  -c CASE, --case CASE  case name\
-  -n N_EPOCH, --N_epoch N_EPOCH\
-  $~~~~~~~~~~~$ Number of training epochs\
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CASE, --case CASE  case name
+  -n N_EPOCH, --N_epoch N_EPOCH
+                               Number of training epochs\
   -m {dinucci,dupuit}, --flow_model {dinucci,dupuit}\
-  $~~~~~~~~~~~$ PDE choice for generating data: dinucci or dupuit\
-  -r, --random $~~~~~$ Do not set constant seed
+                               PDE choice for generating data: dinucci or dupuit\
+  -r, --random            Do not set constant seed
 
+</pre>
 
 ### Quick Usage
 
