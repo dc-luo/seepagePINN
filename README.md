@@ -13,7 +13,7 @@ The ground water flow PINN technique utilizes the information from the known (tr
 
 SeepagePINN has also been used to invert for model parameters such as hydraulic conductivity, in addition to predicting free surface profiles directly from the training data and physics models in figure (b).
 
-![cover](src/paper/Cover.pdf?raw=true)
+![cover](https://github.com/dc-luo/seepagePINN/blob/main/src/paper/Cover.pdf)
 
 
 ### Dependences
@@ -48,7 +48,7 @@ K: hydraulic conductivity
 - python experimental_invert.py --help
 
 usage: experimental_invert.py [-h] [-c CASE] [-n N_EPOCH]
-                              [-m {dinucci,dupuit}] [-r]
+                                                 [-m {dinucci,dupuit}] [-r]
 
 Select PDE model
 
@@ -56,9 +56,9 @@ optional arguments:
   -h, --help            show this help message and exit
   -c CASE, --case CASE  case name
   -n N_EPOCH, --N_epoch N_EPOCH
-                        Number of training epochs
+                         Number of training epochs
   -m {dinucci,dupuit}, --flow_model {dinucci,dupuit}
-                        PDE choice for generating data: dinucci or dupuit
+                         PDE choice for generating data: dinucci or dupuit
   -r, --random          Do not set constant seed
 
 
