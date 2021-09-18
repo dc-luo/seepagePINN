@@ -39,7 +39,7 @@ For training the experimental data, we need to define X, u, L, W, K parameters.\
 X: horizontal dimension (m)\
 u: training solution (free surface height in m)\
 L: length (m)\
-W: width in the third dimension (m)
+W: width in the third dimension (m)\
 K: hydraulic conductivity (m/s)
 
 ### Running seepagePINN
