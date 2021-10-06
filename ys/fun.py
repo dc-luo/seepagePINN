@@ -41,7 +41,7 @@ def make_collocation2D(t_time, n_colloc, x0, x1, scale_t=1.0):
         X_colloc = np.stack((x_colloc, t_colloc)).T
     return X_colloc
     
-def FD1D_seepage(u_initial,x,t,dx,dt,K,a):
+def FD1D_seepage(h1,u_initial,x,t,dx,dt,K,a):
     u_old = u_initial
     u_new = u_initial
     u = []
@@ -55,8 +55,8 @@ def FD1D_seepage(u_initial,x,t,dx,dt,K,a):
         u_new[0] = u_new[1] - a * dx
 
         #if boundary on the right hand size
-        u_new[len(x)-1] = u_new[len(x)-2]
-         
+        u_new[len(x)-1] = h1
+        
         #update u
         u.extend(u_new)
         u_old = u_new
@@ -87,13 +87,13 @@ class InitialConditions(dl.UserExpression):
         return (2,)
 
 
-def Dinucci_seepage(h1,H2,L,K,eta,bounds,T_max,N_steps,N):
+def Dinucci_seepage(h1,H2,L,eta_k,bounds,T_max,N_steps,N):
     # Compute flow boundary condition
     q_star = -(h1**2 - H2**2)/(2*L)
     # Define the constants
     q_star = dl.Constant(q_star)
-    K = dl.Constant(K)
-    eta = dl.Constant(eta)
+    #K = dl.Constant(K)
+    eta = dl.Constant(eta_k)
 
     # Define discretization
     dt = T_max/N_steps
@@ -190,6 +190,32 @@ def plot_model_solution(xx, t, NN, format_str="-"):
 
     plt.plot(xx, u_pred, format_str, linewidth=2)
     plt.ylim([0, None])
+    
+def model_solution(xx, t, NN):
+    u = []
+    for ti in t:
+          tt = np.ones(xx.shape) * ti
+          X = np.stack((xx, tt)).T
+          u_pred, f_pred, _, _ = NN.predict(X)
+          u.append(u_pred[:,0])
+    return np.reshape(u,(len(t),len(xx)))
+    
+def model_solution_di(xx, t, NN):
+    u = []
+    for ti in t:
+          tt = np.ones(xx.shape) * ti
+          X = np.stack((xx, tt)).T
+          u_pred, q_pred, f1_pred, f2_pred, f_left, f_right = NN.predict(X)
+          u.append(u_pred[:,0])
+    return np.reshape(u,(len(t),len(xx)))
+    
+    
+def plot_model_solution_di(xx, t, NN, format_str="-"):
+    tt = np.ones(xx.shape) * t
+    X = np.stack((xx, tt)).T
+    u_pred, q_pred, f1_pred, f2_pred, f_left, f_right = NN.predict(X)
+    plt.plot(xx, u_pred, format_str, linewidth=2)
+    plt.ylim([0, None])
 
 def plot_timestamps(x, dt, FD_sol, model, ind_tests, FD_fit=None):
     plt.rcParams.update({"font.size" : 16})
@@ -217,6 +243,25 @@ def plot_animation(x, dt, FD_sol, model, ind_tests, FD_fit=None):
         plot_fd_solution(x, FD_sol, ind)
         t_ind = ind * dt
         plot_model_solution(x, t_ind, model)
+
+        if FD_fit is not None:
+            plot_fd_solution(x, FD_fit, ind)
+
+        plt.title("time = %g" %(t_ind))
+        plt.xlabel("x")
+        plt.ylabel("h")
+        plt.legend(["numerical", "NN", "numerical with fit K"])
+        plt.pause(0.0001)
+        plt.clf()
+        plt.close()
+
+
+def plot_animation_di(x, dt, FD_sol, model, ind_tests, FD_fit=None):
+    for ind in ind_tests:
+        plt.figure()
+        plot_fd_solution(x, FD_sol, ind)
+        t_ind = ind * dt
+        plot_model_solution_di(x, t_ind, model)
 
         if FD_fit is not None:
             plot_fd_solution(x, FD_fit, ind)
