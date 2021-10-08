@@ -110,10 +110,10 @@ alpha = alpha_reference
 N_epoch = args.N_epoch
 layers = [2, 20, 20, 20, 20, 20, 1]
 
-# Dupuit model
-model_dupuit = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, L, scale_q=scale_q, 
-        X_colloc=X_colloc, alpha=alpha, optimizer_type="both")
-model_dupuit.train(N_epoch)
+# # Dupuit model
+# model_dupuit = DupuitNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, L, scale_q=scale_q, 
+#         X_colloc=X_colloc, alpha=alpha, optimizer_type="both")
+# model_dupuit.train(N_epoch)
 
 # Dinucci model 
 model_dinucci = DiNucciNormalizedScaledPINNFitK(X_train, u_train, k, layers, 0, 1, scale_q=scale_q, 
@@ -123,7 +123,8 @@ model_dinucci.train(N_epoch)
 ######################################################################
 # Post processing and save output as hdf5
 
-save_path = "paper/synthetic/terms/"
+save_path = "synthetic/terms/"
+os.makedirs(save_path, exist_ok=True)
 save_name = save_path + "data_" + data_model
 save_name += "K%e" %(K)
 
@@ -138,7 +139,6 @@ out_file.create_dataset('u_test', data=u_test)
 out_file.create_dataset('K_truth', data=K)
 out_file.create_dataset('L', data=L)
 out_file.create_dataset('noise_ratio', data=noise_ratio)
-
 
 # Dinucci predictions and saving 
 u_pred, f_pred = model_dinucci.predict(X_test) 
@@ -157,16 +157,16 @@ grp.create_dataset('f2_pred', data=f2_pred)
 grp.create_dataset('f3_pred', data=f3_pred) 
 
 # Dupuit predictions and saving 
-u_pred, f_pred = model_dupuit.predict(X_test) 
-K_dupuit = np.exp(model_dupuit.sess.run(model_dupuit.lambda_1)[0])
-
-# Saving model predictions
-groupname = "dupuit"
-grp = out_file.create_group(groupname)
-grp.create_dataset('alpha', data=alpha)
-grp.create_dataset('K', data=K_dupuit)
-grp.create_dataset('u_pred', data=u_pred) 
-grp.create_dataset('f_pred', data=f_pred) 
+# u_pred, f_pred = model_dupuit.predict(X_test) 
+# K_dupuit = np.exp(model_dupuit.sess.run(model_dupuit.lambda_1)[0])
+# 
+# # Saving model predictions
+# groupname = "dupuit"
+# grp = out_file.create_group(groupname)
+# grp.create_dataset('alpha', data=alpha)
+# grp.create_dataset('K', data=K_dupuit)
+# grp.create_dataset('u_pred', data=u_pred) 
+# grp.create_dataset('f_pred', data=f_pred) 
 
 out_file.close()
 
@@ -175,9 +175,9 @@ print("Summarizing run results")
 print("Data generated using ", data_model)
 print("Random: ", args.random)
 print("Dinucci: K = ", K_dinucci)
-print("Dupuit: K = ", K_dupuit)
+# print("Dupuit: K = ", K_dupuit)
 
-plot_scatter = True
+plot_scatter = False
 
 if plot_scatter:
     # plot the 3d scatter for data     
@@ -191,15 +191,15 @@ if plot_scatter:
     plt.ylabel("q")
     plt.title("DiNucci")
 
-    u_pred_test, _ = model_dupuit.predict(X_test)
-    plt.figure(figsize=FIGSIZE)
-    ax = plt.axes(projection='3d')
-    ax.view_init(22, 45)
-    ax.scatter3D(X_test[:,0], X_test[:,1], u_test[:,0], color='r')
-    ax.scatter3D(X_test[:,0], X_test[:,1], u_pred_test[:,0], color='b')
-    plt.xlabel("x")
-    plt.ylabel("q")
-    plt.title("Dupuit")
+#     u_pred_test, _ = model_dupuit.predict(X_test)
+#     plt.figure(figsize=FIGSIZE)
+#     ax = plt.axes(projection='3d')
+#     ax.view_init(22, 45)
+#     ax.scatter3D(X_test[:,0], X_test[:,1], u_test[:,0], color='r')
+#     ax.scatter3D(X_test[:,0], X_test[:,1], u_pred_test[:,0], color='b')
+#     plt.xlabel("x")
+#     plt.ylabel("q")
+#     plt.title("Dupuit")
 
     plt.show()
 
