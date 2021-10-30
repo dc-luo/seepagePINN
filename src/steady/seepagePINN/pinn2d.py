@@ -110,7 +110,8 @@ class PINN2D:
         W = weights[-1]
         b = biases[-1]
         Y = tf.add(tf.matmul(H, W), b) 
-        return Y
+        out = tf.math.softplus(Y)
+        return out
 
     def net_u(self, x, q):  
         u = self.neural_net(tf.concat([x,q],1), self.weights, self.biases)

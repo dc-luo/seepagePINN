@@ -20,9 +20,12 @@ def make_synthetic_set_dupuit(h2, q, L, K, n_points, scale_q=1.0, noise_sd=0):
 
 
 def make_synthetic_all_dupuit(q_list, h2, L, K, n_points, scale_q=1.0, noise_sd=0):
-    training_data = dict() 
-    for i, q in enumerate(q_list):
-        training_data[i+1] = make_synthetic_set_dupuit(h2, q, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd) 
+    training_data = []
+    for q in q_list:
+        training_data.append(make_synthetic_set_dupuit(h2, q, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd))
+    # training_data = dict() 
+    # for i, q in enumerate(q_list):
+        # training_data[i+1] = make_synthetic_set_dupuit(h2, q, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd) 
     return training_data
 
 
@@ -51,9 +54,14 @@ def make_synthetic_set_dinucci(h1, h2, L, K, n_points, scale_q=1.0, noise_sd=0):
 
 
 def make_synthetic_all_dinucci(h1_list, h2, L, K, n_points, scale_q=1.0, noise_sd=0):
-    training_data = dict() 
-    for i, h1 in enumerate(h1_list):
-        training_data[i+1] = make_synthetic_set_dinucci(h1, h2, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd) 
+    # training_data = dict() 
+    # for i, h1 in enumerate(h1_list):
+    #     training_data[i+1] = make_synthetic_set_dinucci(h1, h2, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd) 
+
+    training_data = [] 
+    for h1 in h1_list:
+        training_data.append(make_synthetic_set_dinucci(h1, h2, L, K, n_points, scale_q=scale_q, noise_sd=noise_sd))
+
     return training_data
 
 
