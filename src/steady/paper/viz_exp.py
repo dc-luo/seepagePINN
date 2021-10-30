@@ -75,12 +75,18 @@ color_incr = (top_color-base_color)/n_color
 
 os.makedirs(path + "/figures", exist_ok=True)
 
-# K_dupuit = run_data.get("dupuit_fit/K")[()]
-# K_dinucci = run_data.get("dinucci_fit/K")[()]
 
-# print("K measured: ", K_truth)
-# print("K Dupuit: ", K_dupuit) 
-# print("K dinucci: ", K_dinucci)
+dupuit_file = h5py.File(path + "dupuit_fit.h5", "r")
+K_dupuit = dupuit_file.get("K")[()]
+dupuit_file.close()
+
+dinucci_file = h5py.File(path + "dinucci_fit.h5", "r")
+K_dinucci = dinucci_file.get("K")[()]
+dinucci_file.close()
+
+print("K measured: ", K_truth)
+print("K Dupuit: ", K_dupuit) 
+print("K dinucci: ", K_dinucci)
 
 
 groupnames = ["dupuit_fit", "dinucci_fit", "dupuit_flow", "dinucci_flow", "vanilla"]

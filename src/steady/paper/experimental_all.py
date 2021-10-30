@@ -62,7 +62,7 @@ def run_model(model_name, save_path, args, X_train, u_train, X_test, K, layers, 
 
     # Training the Model
     if model_name == "vanilla":
-        model.train(2*N_epoch)
+        model.train(N_epoch)
     else:
         model.train(N_epoch)
 
