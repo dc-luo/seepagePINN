@@ -41,6 +41,7 @@ parser = argparse.ArgumentParser(description='Select PDE model')
 parser.add_argument("-c", "--case", type=str, default="1mm", help="data case")
 parser.add_argument("-u", "--plot_prediction", help="plot model vs prediction as trends", action="store_true", default=False)
 parser.add_argument("-s", "--plot_scatter", help="Plot the prediction vs test as scatter", action="store_true", default=False)
+parser.add_argument("-f", "--plot_residual", help="plot residuals", action="store_true", default=False)
 args = parser.parse_args()
 
 FIGSIZE = (8, 6)
@@ -113,19 +114,54 @@ if args.plot_prediction:
         factor, exponent = exponential_form(np.abs(q))
 
         if iq in training_list:
-            plt.title(r"$q = %.2f \times 10^{%d}$ (Training)" %(factor, exponent))
+            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Training)" %(factor, exponent))
             # plt.title(r"$q = %g$ (Training)" %(-q))
         else:
-            plt.title(r"$q = %.2f \times 10^{%d}$ (Test)" %(factor, exponent))
+            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Test)" %(factor, exponent))
             # plt.title(r"$q = %g$ (Test)" %(-q))
 
-        plt.xlabel(r"$x$")
-        plt.ylabel(r"$h$")
+        plt.xlabel(r"$x$ (m)")
+        plt.ylabel(r"$h$ (m)")
         plt.ylim([0, h_max*1.1])
         plt.legend(loc="upper left")
         plt.tight_layout()
         plt.savefig(path + "figures/%s_prediction_%d.pdf" %(args.case, iq))
     plt.show()
+
+
+if args.plot_residual:
+    for iq in range(nq):
+        q = slice_to_flow(X_test, iq, nq)[0, 1]*scale_q
+        plt.figure(figsize=FIGSIZE, dpi=FIGDPI)
+    
+        for i_group, groupname in enumerate(groupnames):
+            output_file = h5py.File(path + groupname + ".h5", "r") 
+            f_pred = np.array(output_file.get("f_pred"))
+            output_file.close()
+            plt.semilogy(slice_to_flow(X_test, iq, nq)[:,0], 
+                    slice_to_flow(np.abs(f_pred), iq, nq)[:,0],
+                    linetypes[i_group],
+                    color=grad_color(base_color + i_group * color_incr), 
+                    label=labelnames[i_group])
+        
+        factor, exponent = exponential_form(np.abs(q))
+
+        if iq in training_list:
+            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Training)" %(factor, exponent))
+            # plt.title(r"$q = %g$ (Training)" %(-q))
+        else:
+            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Test)" %(factor, exponent))
+            # plt.title(r"$q = %g$ (Test)" %(-q))
+
+        plt.xlabel(r"$x$ (m)")
+        plt.ylabel(r"$f$")
+        # plt.ylim([0, h_max*1.1])
+        plt.legend(loc="upper left")
+        plt.grid(True, which="both")
+        plt.tight_layout()
+        plt.savefig(path + "figures/%s_residual_%d.pdf" %(args.case, iq))
+    plt.show()
+
 
 grey = [0.5, 0.5, 0.5]
 if args.plot_scatter:

@@ -107,7 +107,7 @@ def main():
         alpha_reference = np.mean(u_train[:,0]**2)
     
     print("Using ", args.regularization, " based reference regularization value: ", alpha_reference)
-    alpha = alpha_reference
+    alpha = alpha_reference/5
     
     # Define models
     N_epoch = args.N_epoch

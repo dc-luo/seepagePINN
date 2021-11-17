@@ -115,6 +115,7 @@ def main():
     
     q = np.abs(X_test[0,1])
     scale_q = 1e-4
+    q = q * scale_q
     
     if args.plot_prediction:
         plot_prediction(X_test, u_test, q, out_file, grad_color, base_color, color_incr, save_path, args.name, args.index)

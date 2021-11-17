@@ -106,8 +106,10 @@ def main():
         alpha_reference = np.mean(u_train[:,0]**2)
     
     print("Using ", args.regularization, " based reference regularization value: ", alpha_reference)
-    alpha_large = alpha_reference
-    alpha_small = 0.1 * alpha_reference
+
+    alpha_small = alpha_reference
+    alpha_medium = 5 * alpha_reference
+    alpha_large = 10 * alpha_reference
     
     # Define models
     N_train = args.N_epoch
@@ -123,6 +125,10 @@ def main():
         model_small = DupuitNormalizedScaledPINNFitK(X_train, u_train, K0, layers, 0, 1, scale_q=scale_q, 
                 X_colloc=X_colloc, alpha=alpha_small, optimizer_type="both")
         model_small.train(N_train)
+
+        model_medium = DupuitNormalizedScaledPINNFitK(X_train, u_train, K0, layers, 0, 1, scale_q=scale_q, 
+                X_colloc=X_colloc, alpha=alpha_medium, optimizer_type="both")
+        model_medium.train(N_train)
     
     
     if flow_model == "dinucci":
@@ -134,6 +140,11 @@ def main():
         model_small = DiNucciNormalizedScaledPINNFitK(X_train, u_train, K0, layers, 0, 1, scale_q=scale_q, 
                 X_colloc=X_colloc, alpha=alpha_small, optimizer_type="both")
         model_small.train(N_train)
+
+        model_medium = DiNucciNormalizedScaledPINNFitK(X_train, u_train, K0, layers, 0, 1, scale_q=scale_q, 
+                X_colloc=X_colloc, alpha=alpha_medium, optimizer_type="both")
+        model_medium.train(N_train)
+
     
     ######################################################################
     # Post processing and save output as hdf5
@@ -151,7 +162,8 @@ def main():
     out_file.create_dataset('K_truth', data=K)
     out_file.create_dataset('noise_ratio', data=noise_ratio)
     out_file.create_dataset('alpha_reference', data=alpha_reference)
-    
+
+    # Large    
     u_pred, f_pred = model.predict(X_test) 
     k_large = np.exp(model.sess.run(model.lambda_1)[0])
     
@@ -163,6 +175,7 @@ def main():
     grp.create_dataset('u_pred', data=u_pred) 
     grp.create_dataset('f_pred', data=f_pred) 
     
+    # Small 
     u_pred, f_pred = model_small.predict(X_test) 
     k_small = np.exp(model_small.sess.run(model_small.lambda_1)[0])
     
@@ -170,6 +183,18 @@ def main():
     groupname = "alpha_small"
     grp = out_file.create_group(groupname)
     grp.create_dataset('alpha', data=alpha_small)
+    grp.create_dataset('K', data=k_small)
+    grp.create_dataset('u_pred', data=u_pred) 
+    grp.create_dataset('f_pred', data=f_pred) 
+
+    # medium 
+    u_pred, f_pred = model_medium.predict(X_test) 
+    k_medium = np.exp(model_medium.sess.run(model_medium.lambda_1)[0])
+    
+    # Saving model predictions
+    groupname = "alpha_medium"
+    grp = out_file.create_group(groupname)
+    grp.create_dataset('alpha', data=alpha_medium)
     grp.create_dataset('K', data=k_small)
     grp.create_dataset('u_pred', data=u_pred) 
     grp.create_dataset('f_pred', data=f_pred) 

@@ -75,11 +75,11 @@ def plot_prediction(output_training, grad_color, base_color, color_incr, path, s
                 plt.plot(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-', 
                         color=grad_color(base_color + i_alpha * color_incr), label=r"$\alpha = 0$")
     
-        plt.xlabel(r"$x$")
-        plt.ylabel(r"$h$")
+        plt.xlabel(r"$x \; (m)$")
+        plt.ylabel(r"$h \; (m)$")
         plt.ylim([0, h_max*1.1])
         sq, eq = get_exponent(q)
-        plt.title(r"$q = %.2f \times 10^{%d}$" %(sq, eq))
+        plt.title(r"$q = %.2f \times 10^{%d} \; (m^2/s)$" %(sq, eq))
         plt.legend()
         plt.tight_layout()
         plt.savefig(path + "figures/%s_prediction_%d.pdf" %(savename, iq))
@@ -120,10 +120,10 @@ def plot_residual(output_training, grad_color, base_color, color_incr, path, sav
                 plt.semilogy(L - slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(np.abs(f_pred), iq, nq)[:,0], '-', 
                         color=grad_color(base_color + i_alpha * color_incr), label=r"$\alpha = 0$")
     
-        plt.xlabel(r"$x$")
+        plt.xlabel(r"$x \; (m)$")
         plt.ylabel(r"$|f_{NN}|$")
         sq, eq = get_exponent(q)
-        plt.title(r"$q = %.2f \times 10^{%d}$" %(sq, eq))
+        plt.title(r"$q = %.2f \times 10^{%d} \; (m^2/s)$" %(sq, eq))
         plt.grid(True)
         plt.legend()
         plt.tight_layout()
@@ -218,7 +218,7 @@ def main():
     top_color = 0.8
     color_incr = (top_color - base_color)/n_alpha
 
-    subselection = [0, 1, 3, 5, 7, 9]
+    subselection = [0, 1, 3, 5, 7, 9, 11]
     
     if args.plot_prediction:
         plot_prediction(output_training, grad_color, base_color, color_incr, path, args.model, subselection)

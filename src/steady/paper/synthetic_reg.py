@@ -110,7 +110,7 @@ def main():
     print("Alpha via averaging: ", alpha_average)
     print("Alpha via max: ", alpha_max)
     
-    alpha_scaling = [0.0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100] 
+    alpha_scaling = [0.0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100, 1000, 10000]
     # alpha_scaling = [0.0, 1.0]
     alphas = [alpha_average * a for a in alpha_scaling]
     print(alphas)
