@@ -66,9 +66,11 @@ optional arguments:
 ### Quick Usage
 1. Install the dependencies in a "Conda environment":
 
-    i. Create an environment: conda create <environment name> \n
-   ii. Activate the environment: conda activate <environment name> \n
-  iii. Install the dependent libraries (given in dependencies): conda install <library name> \n
+    i. Create an environment: conda create <environment name>
+  
+   ii. Activate the environment: conda activate <environment name>
+  
+  iii. Install the dependent libraries (given in dependencies): conda install <library name>
         
 2. Download the github repository and unzip the package contents or clone the repository.
 3. Run the XX.py in a test editor
