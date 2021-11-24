@@ -69,7 +69,7 @@ optional arguments:
     i. Create an environment: conda create *environment name*
   
    ii. Activate the environment: conda activate *environment name*
-  
+   
   iii. Install the dependent libraries (given in dependencies): conda install *library name*
         
 2. Download the github repository and unzip the package contents or clone the repository.
