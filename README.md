@@ -64,7 +64,14 @@ optional arguments:
 </pre>
 
 ### Quick Usage
-
+1. Install the dependencies in a "Conda environment": 
+          i. Create an environment: conda create <environment name>
+         ii. Activate the environment: conda activate <environment name>
+        iii. Install the dependent libraries (given in dependencies): conda install <library name>
+2. Download the github repository and unzip the package contents or clone the repository.
+3. Run the XX.py in a test editor
+4. Run the python program in Mac terminal using experimental_invert.py [-h] [-c CASE] [-n N_EPOCH]
+                                              [-m {dinucci,dupuit}] [-r]
 
 ## Authors
 - Mohammad Afzal Shadab
