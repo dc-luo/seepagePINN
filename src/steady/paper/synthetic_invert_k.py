@@ -195,7 +195,7 @@ def main():
     groupname = "alpha_medium"
     grp = out_file.create_group(groupname)
     grp.create_dataset('alpha', data=alpha_medium)
-    grp.create_dataset('K', data=k_small)
+    grp.create_dataset('K', data=k_medium)
     grp.create_dataset('u_pred', data=u_pred) 
     grp.create_dataset('f_pred', data=f_pred) 
     out_file.close()

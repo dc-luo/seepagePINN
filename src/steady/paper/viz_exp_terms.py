@@ -10,7 +10,7 @@ FIGDPI = 100
 
 def configure_plot():
     plt.rcParams["font.family"] = "Serif"
-    plt.rcParams["font.size"] = 16
+    plt.rcParams["font.size"] = 18
     plt.rcParams['mathtext.fontset'] = 'dejavuserif'
     plt.rcParams['lines.linewidth'] = 3
 
@@ -73,11 +73,12 @@ def plot_terms(X_test, q, out_file, grad_color, color_incr, path, savename, inde
     # Compute nondimensional parameter
     L = 1.62
     pi = np.abs(2*q/(K* L))
+    print(pi)
     exponent = np.floor(np.log10(pi))
     multiplier = pi/10**(exponent)
     
     plt.title(r"$\Pi = %.3f \times 10^{%d}$" %(multiplier, exponent))
-    plt.xlabel(r"$x$")
+    plt.xlabel(r"$x \; (\mathrm{m})$")
     plt.legend()
     plt.tight_layout()
     plt.savefig(path + "figures/%s_terms_%d.pdf" %(savename, index))

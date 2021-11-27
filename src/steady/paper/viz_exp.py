@@ -47,7 +47,7 @@ args = parser.parse_args()
 FIGSIZE = (8, 6)
 FIGDPI = 100
 plt.rcParams["font.family"] = "Serif"
-plt.rcParams["font.size"] = 16
+plt.rcParams["font.size"] = 18
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 
@@ -108,20 +108,21 @@ if args.plot_prediction:
             plt.plot(slice_to_flow(X_test, iq, nq)[:,0], 
                     slice_to_flow(u_pred, iq, nq)[:,0],
                     linetypes[i_group],
+                    linewidth=2,
                     color=grad_color(base_color + i_group * color_incr), 
                     label=labelnames[i_group])
         
         factor, exponent = exponential_form(np.abs(q))
 
         if iq in training_list:
-            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Training)" %(factor, exponent))
+            plt.title(r"$q = %.2f \times 10^{%d} \; (\mathrm{m}^2/\mathrm{s})$ (Training)" %(factor, exponent))
             # plt.title(r"$q = %g$ (Training)" %(-q))
         else:
-            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Test)" %(factor, exponent))
+            plt.title(r"$q = %.2f \times 10^{%d} \; (\mathrm{m}^2/\mathrm{s})$ (Test)" %(factor, exponent))
             # plt.title(r"$q = %g$ (Test)" %(-q))
 
-        plt.xlabel(r"$x$ (m)")
-        plt.ylabel(r"$h$ (m)")
+        plt.xlabel(r"$x \; (\mathrm{m})$")
+        plt.ylabel(r"$h \; (\mathrm{m})$")
         plt.ylim([0, h_max*1.1])
         plt.legend(loc="upper left")
         plt.tight_layout()
@@ -141,22 +142,23 @@ if args.plot_residual:
             plt.semilogy(slice_to_flow(X_test, iq, nq)[:,0], 
                     slice_to_flow(np.abs(f_pred), iq, nq)[:,0],
                     linetypes[i_group],
+                    linewidth=2,
                     color=grad_color(base_color + i_group * color_incr), 
                     label=labelnames[i_group])
         
         factor, exponent = exponential_form(np.abs(q))
 
         if iq in training_list:
-            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Training)" %(factor, exponent))
+            plt.title(r"$q = %.2f \times 10^{%d} \; (\mathrm{m}^2/\mathrm{s})$ (Training)" %(factor, exponent))
             # plt.title(r"$q = %g$ (Training)" %(-q))
         else:
-            plt.title(r"$q = %.2f \times 10^{%d} (\mathrm{m}^2/\mathrm{s})$ (Test)" %(factor, exponent))
+            plt.title(r"$q = %.2f \times 10^{%d} \; (\mathrm{m}^2/\mathrm{s})$ (Test)" %(factor, exponent))
             # plt.title(r"$q = %g$ (Test)" %(-q))
 
-        plt.xlabel(r"$x$ (m)")
-        plt.ylabel(r"$f$")
-        # plt.ylim([0, h_max*1.1])
-        plt.legend(loc="upper left")
+        plt.xlabel(r"$x \; (\mathrm{m})$")
+        plt.ylabel(r"$|f_{NN}|$")
+        plt.ylim([10**(-6), 10**1])
+        plt.legend(loc="lower left")
         plt.grid(True, which="both")
         plt.tight_layout()
         plt.savefig(path + "figures/%s_residual_%d.pdf" %(args.case, iq))

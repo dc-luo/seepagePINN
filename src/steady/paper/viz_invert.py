@@ -13,7 +13,7 @@ from seepagePINN import *
 FIGSIZE = (8, 6)
 FIGDPI = 100
 plt.rcParams["font.family"] = "Serif"
-plt.rcParams["font.size"] = 16
+plt.rcParams["font.size"] = 18
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 def slice_to_flow(arr, i, n):
@@ -60,16 +60,20 @@ def plot_prediction(q_list, X_test, u_test, data_file, grad_color, base_color, c
             plt.plot(slice_to_flow(X_test, iq, nq)[:,0], 
                     slice_to_flow(u_pred, iq, nq)[:,0],
                     color=grad_color(base_color + i_group * color_incr), 
+                    linewidth=2,
                     label=labelname)
 
         factor, exponent = exponential_form(np.abs(q_list[iq]))
 
-        plt.title(r"$q = %.2f \times 10^{%d}$" %(factor, exponent))
+        plt.title(r"$q = %.2f \times 10^{%d} \; (\mathrm{m}^2/\mathrm{s})$" %(factor, exponent))
 
-        plt.xlabel(r"$x$")
-        plt.ylabel(r"$h$")
+        plt.xlabel(r"$x \; (\mathrm{m})$")
+        plt.ylabel(r"$h \; (\mathrm{m})$")
         plt.ylim([0, h_max*1.1])
-        plt.legend(loc="upper left")
+        if iq == 0:
+            plt.legend()
+        # plt.legend(loc="upper left")
+        # plt.legend(loc="center left", bbox_to_anchor=(1.04,0.5))
         plt.tight_layout()
         plt.savefig(path + "figures/%s_prediction_%d.pdf" %(savename, iq))
 
@@ -91,15 +95,22 @@ def plot_residual(q_list, X_test, u_test, data_file, grad_color, base_color, col
             plt.semilogy(slice_to_flow(X_test, iq, nq)[:,0], 
                     slice_to_flow(np.abs(f_pred), iq, nq)[:,0],
                     color=grad_color(base_color + i_group * color_incr), 
+                    linewidth=2,
                     label=labelname)
 
         factor, exponent = exponential_form(np.abs(q_list[iq]))
 
-        plt.title(r"$q = %.2f \times 10^{%d}$" %(factor, exponent))
+        # plt.title(r"$q = %.2f \times 10^{%d}$" %(factor, exponent))
+        plt.title(r"$q = %.2f \times 10^{%d} \; (\mathrm{m}^2/\mathrm{s})$" %(factor, exponent))
 
-        plt.xlabel(r"$x$")
+        plt.xlabel(r"$x \; (\mathrm{m})$")
         plt.ylabel(r"$|f_{NN}|$")
-        plt.legend(loc="lower left")
+        plt.ylim([10**(-7), 10**(-1)])
+        plt.grid(True, which="both")
+        # plt.legend(loc="lower left")
+        if iq == 0:
+            plt.legend()
+        # plt.legend(loc="center left", bbox_to_anchor=(1.04,0.5))
         plt.tight_layout()
         plt.savefig(path + "figures/%s_residual_%d.pdf" %(savename, iq))
 
@@ -138,9 +149,9 @@ def main():
     print("Flow model: ", args.flow_model)
     print("Data model: ", args.data_model)
     print("K (truth): ", K_truth)
-    print("K (large): ", K_large)
-    print("K (medium): ", K_medium)
-    print("K (small): ", K_small)
+    print("K (large): ", K_large, " Error: ", (K_large-K_truth)/K_truth*100)
+    print("K (medium): ", K_medium, " Error: ", (K_medium-K_truth)/K_truth*100)
+    print("K (small): ", K_small, " Error: ", (K_small-K_truth)/K_truth*100)
     
     if args.plot_prediction:
         plot_prediction(q_list, X_train, u_train, run_data, grad_color, base_color, color_incr, path, run_name)

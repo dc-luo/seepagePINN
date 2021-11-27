@@ -31,7 +31,7 @@ def slice_to_flow(arr, i, n):
 
 def set_figure_properties():
     plt.rcParams["font.family"] = "Serif"
-    plt.rcParams["font.size"] = 16
+    plt.rcParams["font.size"] = 18
     plt.rcParams['mathtext.fontset'] = 'dejavuserif'
     plt.rcParams['lines.linewidth'] = 3
 
@@ -75,10 +75,10 @@ def plot_terms(filename, save_dir, args):
         plt.plot(slice_to_flow(X_test, iq, nq)[:,0], slice_to_flow(u_pred, iq, nq)[:,0], '-b', label="Di Nucci")
         K = out_file.get(groupname + "/K")[()]
         pi = 2*q/(K_truth * L)
-        plt.xlabel(r"$x$")
+        plt.xlabel(r"$x \; (\mathrm{m})$")
         plt.ylabel(r"Term")
         plt.title(r"$\Pi = %g$" %(pi))
-        plt.savefig(save_dir + "/%g_prediction.pdf" %(K_truth))
+        plt.savefig(save_dir + "/pi_%g_prediction.pdf" %(pi))
 
     for iq, q in enumerate(qs):
         plt.figure(figsize=FIGSIZE)
@@ -100,13 +100,13 @@ def plot_terms(filename, save_dir, args):
                 '--k', linewidth=2)
     
         pi = 2*q/(K_truth * L)
-        plt.xlabel(r"$x$")
+        plt.xlabel(r"$x \; (\mathrm{m})$")
         plt.ylabel(r"Term")
         plt.title(r"$\Pi = %g$" %(pi))
         # plt.legend(loc='lower center', ncol=4) 
         plt.legend()
         plt.tight_layout()
-        plt.savefig(save_dir + "/%g_terms.pdf" %(K_truth))
+        plt.savefig(save_dir + "/pi_%g_terms.pdf" %(pi))
 
     plt.show()
 
