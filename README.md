@@ -74,7 +74,7 @@ optional arguments:
 
     i. Create an environment: conda create **environment name**\
     ii. Activate the environment: conda activate **environment name**\
-    iii. Install the dependent libraries (given in dependencies): conda install **library name**\
+    iii. Install the dependent libraries (given in dependencies): conda install **library name**
 ```
 conda create -n seepage -c uvilla -c conda-forge fenics==2019.1.0 matplotlib scipy jupyter python=3.7
 conda install -c conda-forge tensorflow-gpu=1.15
