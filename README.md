@@ -87,7 +87,7 @@ conda install -c anaconda h5py=3.3.0 -y
 ```
 git clone https://github.com/dc-luo/seepagePINN.git
 ```
-3. Run the XX.py in a test editor
+3. Move to the specific folder on steady results
 ```
 cd src/steady/paper/
 ```
