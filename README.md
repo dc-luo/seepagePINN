@@ -67,7 +67,7 @@ optional arguments:
 
 </pre>
 
-### Quick Usage
+### Quick Usage (MacOS)
 
 
 1. Install the dependencies in a "Conda environment":
@@ -77,7 +77,8 @@ optional arguments:
     iii. Install the dependent libraries (given in dependencies): conda install **library name**
 ```
 conda create -n seepage -c uvilla -c conda-forge fenics==2019.1.0 matplotlib scipy jupyter python=3.7
-conda install -c conda-forge tensorflow-gpu=1.15
+conda activate seepage
+conda install tensorflow=1.15
 conda install -c conda-forge numpy=1.16.6 -y
 conda install -c conda-forge pandas -y
 conda install -c anaconda scipy=1.5.3 -y
