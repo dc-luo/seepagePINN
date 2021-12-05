@@ -90,7 +90,7 @@ git clone https://github.com/dc-luo/seepagePINN.git
 ```
 3. Move to the specific folder on steady results
 ```
-cd src/steady/paper/
+cd seepagePINN/src/steady/paper/
 ```
 4. Run the python program in Mac terminal using experimental_invert.py [-h] [-c CASE] [-n N_EPOCH] [-m {dinucci,dupuit}] [-r]
 for example:
