@@ -92,7 +92,7 @@ git clone https://github.com/dc-luo/seepagePINN.git
 ```
 cd seepagePINN/src/steady/paper/
 ```
-4. Run the python program in Mac terminal using experimental_invert.py [-h] [-c CASE] [-n N_EPOCH] [-m {dinucci,dupuit}] [-r]
+4. Run the python program in Mac terminal using experimental_all.py [-h] [-c CASE] [-n N_EPOCH] [-m {dinucci,dupuit}] [-r]
 for example:
 ```
 python experimental_all.py -c 1mm -n 20000
