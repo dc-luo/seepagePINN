@@ -95,7 +95,7 @@ cd seepagePINN/src/steady/paper/
 4. Run the python program in Mac terminal using experimental_invert.py [-h] [-c CASE] [-n N_EPOCH] [-m {dinucci,dupuit}] [-r]
 for example:
 ```
-python experimental_invert.py -c 1mm -n 20000 -m dinucci -r
+python experimental_all.py -c 1mm -n 20000
 ```
 ## Authors
 - Mohammad Afzal Shadab
