@@ -78,7 +78,7 @@ optional arguments:
 ```
 conda create -n seepage -c uvilla -c conda-forge fenics==2019.1.0 matplotlib scipy jupyter python=3.7
 conda activate seepage
-conda install tensorflow=1.15
+conda install tensorflow=1.13.2
 conda install -c conda-forge numpy=1.16.6 -y
 conda install -c conda-forge pandas -y
 conda install -c anaconda scipy=1.5.3 -y
