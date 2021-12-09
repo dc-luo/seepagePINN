@@ -103,3 +103,11 @@ python experimental_all.py -c 1mm -n 20000
 - Yiran Shen
 - Eric Hiatt
 - Marc Andre Hesse
+
+
+## References / Related publications
+[1] Shadab, M. A., Luo, D., Shen, Y., Hiatt, E., & Hesse, M. A. (202X). Investigating Steady Unconfined Groundwater Flow using Physics Informed Neural Networks. Water Resources Research (in preparation).
+
+[2] Hesse, M. A., Shadab, M. A., Luo, D., Shen, Y., & Hiatt, E. (2021). Investigating groundwater flow dynamics using physics informed neural networks (pinns). In 2021 agu fall meeting. (H34F-03).
+
+[3] Shadab, M. A., Luo, D., Shen, Y., Hiatt, E., & Hesse, M. A. (2021). Investigating fluid drainage from the edge of a porous reservoir using physics informed neural networks. In 2021 siam annual meeting (an21). Session: CP15 - Machine Learning and Data Mining.
