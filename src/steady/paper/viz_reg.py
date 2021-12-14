@@ -9,7 +9,7 @@ import matplotlib.ticker
 FIGSIZE = (12, 8)
 FIGDPI = 100
 plt.rcParams["font.family"] = "Serif"
-plt.rcParams["font.size"] = 18
+plt.rcParams["font.size"] = 24
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 def get_exponent(a):
@@ -25,6 +25,8 @@ def parse_args():
     parser.add_argument("-f", "--plot_residual", help="plot model vs prediction as trends", action="store_true", default=False)
     parser.add_argument("-c", "--plot_comparison", help="plot model vs prediction as scatter", action="store_true", default=False)
     parser.add_argument("-l", "--plot_lcurve", help="plot L-curve analysis", action="store_true", default=False)
+    parser.add_argument("--legend", help="add legend for plots", action="store_true", default=False)
+
     args = parser.parse_args()
     return args
 
@@ -37,7 +39,7 @@ def slice_to_flow(arr, i, n):
     return arr[i_lower:i_upper, :]
 
 
-def plot_prediction(output_training, grad_color, base_color, color_incr, path, savename, subselection=None):
+def plot_prediction(output_training, grad_color, base_color, color_incr, path, savename, legend=False, subselection=None):
     L = 1.0
     X_data = np.array(output_training.get('X_data'))
     u_data = np.array(output_training.get('u_data'))
@@ -82,13 +84,18 @@ def plot_prediction(output_training, grad_color, base_color, color_incr, path, s
         sq, eq = get_exponent(q)
         plt.title(r"$q = %.2f \times 10^{%d} \; (\mathrm{m}^2/\mathrm{s})$" %(sq, eq))
         # plt.legend(loc="center left", bbox_to_anchor=(1.04, 0.5))
-        if iq == 0:
+        if legend:
             plt.legend()
+
         plt.tight_layout()
-        plt.savefig(path + "figures/%s_prediction_%d.pdf" %(savename, iq))
+
+        if legend:
+            plt.savefig(path + "figures/%s_prediction_%d_legend.pdf" %(savename, iq))
+        else:
+            plt.savefig(path + "figures/%s_prediction_%d.pdf" %(savename, iq))
 
 
-def plot_residual(output_training, grad_color, base_color, color_incr, path, savename, subselection=None):
+def plot_residual(output_training, grad_color, base_color, color_incr, path, savename, legend=False, subselection=None):
     L = 1.0
     X_data = np.array(output_training.get('X_data'))
     u_data = np.array(output_training.get('u_data'))
@@ -142,10 +149,14 @@ def plot_residual(output_training, grad_color, base_color, color_incr, path, sav
 
         ax.grid(True, which="both")
         # ax.legend(loc="center left", bbox_to_anchor=(1.04, 0.5))
-        if iq == 0:
+        if legend: 
             plt.legend()
         plt.tight_layout()
-        plt.savefig(path + "figures/%s_residual_%d.pdf" %(savename, iq))
+
+        if legend:
+            plt.savefig(path + "figures/%s_residual_%d_legend.pdf" %(savename, iq))
+        else:
+            plt.savefig(path + "figures/%s_residual_%d.pdf" %(savename, iq))
 
 
 # def plot_comparison(output_training, grad_color, base_color, color_incr, path, savename, subselection=None):
@@ -251,9 +262,9 @@ def main():
     subselection = [0, 1, 3, 5, 7, 9, 11]
     
     if args.plot_prediction:
-        plot_prediction(output_training, grad_color, base_color, color_incr, path, args.model, subselection)
+        plot_prediction(output_training, grad_color, base_color, color_incr, path, args.model, args.legend, subselection)
     if args.plot_residual:
-        plot_residual(output_training, grad_color, base_color, color_incr, path, args.model, subselection)
+        plot_residual(output_training, grad_color, base_color, color_incr, path, args.model, args.legend, subselection)
     if args.plot_lcurve:
         plot_lcurve(output_training, args.model, grad_color, base_color, color_incr, path, args.model)
 

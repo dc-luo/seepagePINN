@@ -42,6 +42,9 @@ parser.add_argument("-c", "--case", type=str, default="1mm", help="data case")
 parser.add_argument("-u", "--plot_prediction", help="plot model vs prediction as trends", action="store_true", default=False)
 parser.add_argument("-s", "--plot_scatter", help="Plot the prediction vs test as scatter", action="store_true", default=False)
 parser.add_argument("-f", "--plot_residual", help="plot residuals", action="store_true", default=False)
+parser.add_argument("--legend", help="add legend to plots", action="store_true", default=False)
+parser.add_argument("--show", help="show plots", action="store_true", default=False)
+
 args = parser.parse_args()
 
 FIGSIZE = (8, 6)
@@ -124,10 +127,18 @@ if args.plot_prediction:
         plt.xlabel(r"$x \; (\mathrm{m})$")
         plt.ylabel(r"$h \; (\mathrm{m})$")
         plt.ylim([0, h_max*1.1])
-        plt.legend(loc="upper left")
+        if args.legend:
+            plt.legend(loc="upper left")
+
         plt.tight_layout()
-        plt.savefig(path + "figures/%s_prediction_%d.pdf" %(args.case, iq))
-    plt.show()
+
+        if args.legend:
+            plt.savefig(path + "figures/%s_prediction_%d_legend.pdf" %(args.case, iq))
+        else:
+            plt.savefig(path + "figures/%s_prediction_%d.pdf" %(args.case, iq))
+    
+    if args.show:
+        plt.show()
 
 
 if args.plot_residual:
@@ -158,11 +169,19 @@ if args.plot_residual:
         plt.xlabel(r"$x \; (\mathrm{m})$")
         plt.ylabel(r"$|f_{NN}|$")
         plt.ylim([10**(-6), 10**1])
-        plt.legend(loc="lower left")
         plt.grid(True, which="both")
+
+        if args.legend:
+            plt.legend(loc="lower left")
+
         plt.tight_layout()
-        plt.savefig(path + "figures/%s_residual_%d.pdf" %(args.case, iq))
-    plt.show()
+
+        if args.legend:
+            plt.savefig(path + "figures/%s_residual_%d_legend.pdf" %(args.case, iq))
+        else:
+            plt.savefig(path + "figures/%s_residual_%d.pdf" %(args.case, iq))
+    if args.show:
+        plt.show()
 
 
 grey = [0.5, 0.5, 0.5]
@@ -196,5 +215,7 @@ if args.plot_scatter:
         # plt.xlim([0, None])
         plt.tight_layout()
         plt.savefig(path + "figures/%s_scatter_%s.pdf" %(args.case,groupname))
-    plt.show()
+
+    if args.show:
+        plt.show()
         

@@ -38,10 +38,11 @@ def parse_args():
     parser.add_argument("-c", "--case", type=str, default="1mm", help="data case")
     parser.add_argument("-u", "--plot_prediction", help="plot model vs prediction as trends", action="store_true", default=False)
     parser.add_argument("-f", "--plot_residual", help="Plot the pde residual", action="store_true", default=False)
+    parser.add_argument("--legend", help="add legend for plots", action="store_true", default=False)
     args = parser.parse_args()
     return args
 
-def plot_prediction(q_list, X_test, u_test, data_file, grad_color, base_color, color_incr, path, savename):
+def plot_prediction(q_list, X_test, u_test, data_file, grad_color, base_color, color_incr, path, savename, legend):
     # alpha_reference = np.mean(u_test**2)
     alpha_reference = data_file.get("alpha_reference")[()]
     h_max = np.max(u_test)
@@ -70,14 +71,17 @@ def plot_prediction(q_list, X_test, u_test, data_file, grad_color, base_color, c
         plt.xlabel(r"$x \; (\mathrm{m})$")
         plt.ylabel(r"$h \; (\mathrm{m})$")
         plt.ylim([0, h_max*1.1])
-        if iq == 0:
+        if legend:
             plt.legend()
-        # plt.legend(loc="upper left")
-        # plt.legend(loc="center left", bbox_to_anchor=(1.04,0.5))
-        plt.tight_layout()
-        plt.savefig(path + "figures/%s_prediction_%d.pdf" %(savename, iq))
 
-def plot_residual(q_list, X_test, u_test, data_file, grad_color, base_color, color_incr, path, savename):
+        plt.tight_layout()
+
+        if legend:
+            plt.savefig(path + "figures/%s_prediction_%d_legend.pdf" %(savename, iq))
+        else:
+            plt.savefig(path + "figures/%s_prediction_%d.pdf" %(savename, iq))
+
+def plot_residual(q_list, X_test, u_test, data_file, grad_color, base_color, color_incr, path, savename, legend):
     alpha_reference = data_file.get("alpha_reference")[()]
     h_max = np.max(u_test)
     nq = len(q_list) 
@@ -108,11 +112,14 @@ def plot_residual(q_list, X_test, u_test, data_file, grad_color, base_color, col
         plt.ylim([10**(-7), 10**(-1)])
         plt.grid(True, which="both")
         # plt.legend(loc="lower left")
-        if iq == 0:
+        if legend: 
             plt.legend()
-        # plt.legend(loc="center left", bbox_to_anchor=(1.04,0.5))
         plt.tight_layout()
-        plt.savefig(path + "figures/%s_residual_%d.pdf" %(savename, iq))
+
+        if legend:
+            plt.savefig(path + "figures/%s_residual_%d_legend.pdf" %(savename, iq))
+        else:
+            plt.savefig(path + "figures/%s_residual_%d.pdf" %(savename, iq))
 
 def main():
     args = parse_args()
@@ -154,10 +161,10 @@ def main():
     print("K (small): ", K_small, " Error: ", (K_small-K_truth)/K_truth*100)
     
     if args.plot_prediction:
-        plot_prediction(q_list, X_train, u_train, run_data, grad_color, base_color, color_incr, path, run_name)
+        plot_prediction(q_list, X_train, u_train, run_data, grad_color, base_color, color_incr, path, run_name, args.legend)
 
     if args.plot_residual:
-        plot_residual(q_list, X_train, u_train, run_data, grad_color, base_color, color_incr, path, run_name)
+        plot_residual(q_list, X_train, u_train, run_data, grad_color, base_color, color_incr, path, run_name, args.legend)
 
     plt.show()
 
