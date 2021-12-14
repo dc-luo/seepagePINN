@@ -13,7 +13,7 @@ The ground water flow PINN technique utilizes the information from the known (tr
 
 SeepagePINN has also been used to invert for model parameters such as hydraulic conductivity, in addition to predicting free surface profiles directly from the training data and physics models in figure (b).
 
-![cover](/old_steady/paper/Cover.png?raw=true)
+![cover](/cover/cover.png?raw=true)
 
 ### Dependences
 
