@@ -44,42 +44,70 @@ K: hydraulic conductivity (m/s)
 
 ### Running seepagePINN
 (by importing argparse in python code)
-- python experimental_invert.py --help
-
+```
+python experimental_all.py --help
+```
 <pre>
-usage: experimental_invert.py [-h] [-c CASE] [-n N_EPOCH]
-                                              [-m {dinucci,dupuit}] [-r]
+usage: experimental_all.py [-h] [-c {1mm,2mm}] [-n N_EPOCH] [-N N_TRAINING]
+                           [-r] [--regularization {average,max}]
 
 Select PDE model
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c CASE, --case CASE  case name
+  -c {1mm,2mm}, --case {1mm,2mm}
+                        Case name
   -n N_EPOCH, --N_epoch N_EPOCH
-                               Number of training epochs
-  -m {dinucci,dupuit}, --flow_model {dinucci,dupuit}
-                               PDE choice for generating data: dinucci or dupuit
-  -r, --random            Do not set constant seed
+                        Number of training epochs
+  -N N_TRAINING, --N_training N_TRAINING
+                        Number of training sets
+  -r, --random          Do not set constant seed
+  --regularization {average,max}
+                        selection of regularization parameter
 
 </pre>
 
-### Quick Usage
+### Quick Usage (MacOS)
+
+
 1. Install the dependencies in a "Conda environment":
 
-    i. Create an environment: conda create *environment name*
-  
-   ii. Activate the environment: conda activate *environment name*
-   
-  iii. Install the dependent libraries (given in dependencies): conda install *library name*
-        
+    i. Create an environment: conda create **environment name**\
+    ii. Activate the environment: conda activate **environment name**\
+    iii. Install the dependent libraries (given in dependencies): conda install **library name**
+```
+conda create -n seepage -c uvilla -c conda-forge fenics==2019.1.0 matplotlib scipy jupyter python=3.7
+conda activate seepage
+conda install -c conda-forge tensorflow==1.13.2
+conda install -c conda-forge numpy=1.16.6 -y
+conda install -c conda-forge pandas -y
+conda install -c anaconda scipy=1.5.3 -y
+conda install -c anaconda h5py=3.3.0 -y
+```
 2. Download the github repository and unzip the package contents or clone the repository.
-3. Run the XX.py in a test editor
-4. Run the python program in Mac terminal using experimental_invert.py [-h] [-c CASE] [-n N_EPOCH]
-                                              [-m {dinucci,dupuit}] [-r]
-
+```
+git clone https://github.com/dc-luo/seepagePINN.git
+```
+3. Move to the specific folder on steady results
+```
+cd seepagePINN/src/steady/paper/
+```
+4. Run the python program in Mac terminal using experimental_all.py [-h] [-c CASE] [-n N_EPOCH] [-m {dinucci,dupuit}] [-r]
+for example:
+```
+python experimental_all.py -c 1mm -n 20000
+```
 ## Authors
 - Mohammad Afzal Shadab
 - Dingcheng Luo
 - Yiran Shen
 - Eric Hiatt
 - Marc Andre Hesse
+
+
+## References / Related publications
+[1] Shadab, M. A., Luo, D., Shen, Y., Hiatt, E., & Hesse, M. A. (202X). Investigating Steady Unconfined Groundwater Flow using Physics Informed Neural Networks. Water Resources Research (in preparation).
+
+[2] Hesse, M. A., Shadab, M. A., Luo, D., Shen, Y., & Hiatt, E. (2021). Investigating groundwater flow dynamics using physics informed neural networks (pinns). In 2021 agu fall meeting. (H34F-03).
+
+[3] Shadab, M. A., Luo, D., Shen, Y., Hiatt, E., & Hesse, M. A. (2021). Investigating fluid drainage from the edge of a porous reservoir using physics informed neural networks. In 2021 siam annual meeting (an21). Session: CP15 - Machine Learning and Data Mining.
