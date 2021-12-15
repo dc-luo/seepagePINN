@@ -60,7 +60,7 @@ optional arguments:
   -c {1mm,2mm}, --case {1mm,2mm}
                         Case name
   -n N_EPOCH, --N_epoch N_EPOCH
-                        Number of training epochs
+                        Number of training iterations with ADAM
   -N N_TRAINING, --N_training N_TRAINING
                         Number of training sets
   -r, --random          Do not set constant seed
