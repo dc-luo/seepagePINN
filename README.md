@@ -27,8 +27,10 @@ SeepagePINN requires the following packages to function:
 - [TensorFlow](https://www.tensorflow.org/) 0.10.0rc0, also tested with
   TensorFlow = 1.x
 
+<!--
 If you want to train the 1D Unsteady Groundwater Flow Model with Di Nucci approximation, then we also need to install:
 - [fenics](https://fenicsproject.org/) 
+-->
 
 ### Numerical Data Sources
 Our SeepagePINN Model train, validation and test datasets by Dupuit-Boussinesq and Di Nucci model.
@@ -76,6 +78,13 @@ optional arguments:
     ii. Activate the environment: conda activate **environment name**\
     iii. Install the dependent libraries (given in dependencies): conda install **library name**
 ```
+conda create -n seepage python=3.7
+conda activate seepage 
+conda install tensorflow==1.14
+conda install matplotlib pandas scipy h5py
+```
+<!--
+```
 conda create -n seepage -c uvilla -c conda-forge fenics==2019.1.0 matplotlib scipy jupyter python=3.7
 conda activate seepage
 conda install -c conda-forge tensorflow==1.13.2
@@ -84,6 +93,7 @@ conda install -c conda-forge pandas -y
 conda install -c anaconda scipy=1.5.3 -y
 conda install -c anaconda h5py=3.3.0 -y
 ```
+-->
 2. Download the github repository and unzip the package contents or clone the repository.
 ```
 git clone https://github.com/dc-luo/seepagePINN.git
@@ -97,6 +107,8 @@ for example:
 ```
 python experimental_all.py -c 1mm -n 20000
 ```
+and to visualize the training results
+python viz_exp.py -c 1mm -u --show
 ## Authors
 - Mohammad Afzal Shadab
 - Dingcheng Luo
