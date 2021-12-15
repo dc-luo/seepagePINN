@@ -108,7 +108,9 @@ for example:
 python experimental_all.py -c 1mm -n 20000
 ```
 and to visualize the training results
+```
 python viz_exp.py -c 1mm -u --show
+```
 ## Authors
 - Mohammad Afzal Shadab
 - Dingcheng Luo
