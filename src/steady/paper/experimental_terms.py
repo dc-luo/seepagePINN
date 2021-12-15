@@ -18,7 +18,7 @@ def parse_args():
     # Parsing in PDE model as input 
     parser = argparse.ArgumentParser(description='Select PDE model') 
     parser.add_argument('-c', '--case', type=str, default='1mm', choices=["1mm", "2mm"], help="Case name")
-    parser.add_argument('-n', '--N_epoch', type=int, default=20000, help="Number of training epochs")
+    parser.add_argument('-n', '--N_epoch', type=int, default=20000, help="Number of training iterations with ADAM")
     parser.add_argument("-r", "--random", help="Do not set constant seed", action="store_true", default=False)
     parser.add_argument("-i", "--index", type=int, default=0, help="Index of the data set")
     parser.add_argument("--regularization", type=str, default="average", choices=["average", "max"], help="selection of regularization parameter")

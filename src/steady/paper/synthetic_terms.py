@@ -24,7 +24,7 @@ def parse_args():
     ######################################################################
     # Parsing in PDE model as input 
     parser = argparse.ArgumentParser(description='Inputs for training') 
-    parser.add_argument('-n', '--N_epoch', type=int, default=20000, help="Number of training epochs")
+    parser.add_argument('-n', '--N_epoch', type=int, default=20000, help="Number of training iterations with ADAM")
     parser.add_argument('-d', '--data_model', type=str, default="dinucci", choices=["dinucci", "dupuit"], help="PDE choice for interpreting data: dinucci or dupuit")
     parser.add_argument("-r", "--random", help="Do not set constant seed", action="store_true", default=False)
     parser.add_argument("-p", "--positive", help="Set positive bounds on PDE coefficients", action="store_true", default=False)
