@@ -118,6 +118,7 @@ python viz_exp.py -c 1mm -u --show --legend
 - Eric Hiatt
 - Marc Andre Hesse
 
+Cite the code: [![DOI](https://zenodo.org/badge/373661080.svg)](https://zenodo.org/badge/latestdoi/373661080)
 
 ## References / Related publications
 [1] Shadab, M. A., Luo, D., Shen, Y., Hiatt, E., & Hesse, M. A. (202X). Investigating Steady Unconfined Groundwater Flow using Physics Informed Neural Networks. Water Resources Research (in preparation).
