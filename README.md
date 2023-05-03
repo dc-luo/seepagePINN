@@ -121,7 +121,7 @@ python viz_exp.py -c 1mm -u --show --legend
 Cite the code: [![DOI](https://zenodo.org/badge/373661080.svg)](https://zenodo.org/badge/latestdoi/373661080)
 
 ## References / Related publications
-[1] Shadab, M. A., Luo, D., Shen, Y., Hiatt, E., & Hesse, M. A. (202X). Investigating Steady Unconfined Groundwater Flow using Physics Informed Neural Networks. Water Resources Research (in preparation).
+[1] Shadab, M. A., Luo, D., Hiatt, E., Shen, Y. & Hesse, M. A. (2023). Investigating Steady Unconfined Groundwater Flow using Physics Informed Neural Networks. Advances in Water Resources, doi: https://doi.org/10.1016/j.advwatres.2023.104445.
 
 [2] Hesse, M. A., Shadab, M. A., Luo, D., Shen, Y., & Hiatt, E. (2021). Investigating groundwater flow dynamics using physics informed neural networks (pinns). In 2021 agu fall meeting. (H34F-03).
 
